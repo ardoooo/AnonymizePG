@@ -1,0 +1,304 @@
+2024-03-16 19:16:58.165 - [ERROR] - utils.preparation : Failed to prepare transfer table '_transfer_workers': syntax error at or near "="
+LINE 1: ...e FROM information_schema.columnsWHERE table_name = 'workers...
+                                                             ^
+
+2024-03-16 19:25:27.298 - [ERROR] - utils.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-16 19:37:16.448 - [ERROR] - utils.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-16 20:27:36.225 - [ERROR] - src.preparation : Failed to prepare destination table '_transfer_workers': relation "_transfer_workers" already exists
+
+2024-03-16 20:27:44.014 - [ERROR] - src.preparation : Failed to prepare destination table '_transfer_workers': relation "_transfer_workers" already exists
+
+2024-03-16 20:29:48.536 - [ERROR] - src.preparation : Failed to prepare destination table '_transfer_workers': relation "_transfer_workers" already exists
+
+2024-03-16 20:31:34.469 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-16 20:33:26.324 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-16 20:44:54.729 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-16 20:45:27.764 - [ERROR] - __main__ : operator does not exist: tid = text
+LINE 4:             WHERE ctid = ANY(ARRAY['(0,1)','(0,2)','(0,3)','...
+                               ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+
+2024-03-16 20:55:54.260 - [ERROR] - __main__ : operator does not exist: tid = record
+LINE 4:             WHERE ctid = ANY(ARRAY[(0,1),(0,2),(0,3),(0,4),(...
+                               ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+
+2024-03-16 20:55:57.261 - [ERROR] - __main__ : operator does not exist: tid = record
+LINE 4:             WHERE ctid = ANY(ARRAY[(0,1),(0,2),(0,3),(0,4),(...
+                               ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+
+2024-03-16 20:55:58.534 - [ERROR] - __main__ : operator does not exist: tid = record
+LINE 4:             WHERE ctid = ANY(ARRAY[(0,1),(0,2),(0,3),(0,4),(...
+                               ^
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
+
+2024-03-16 20:56:09.762 - [ERROR] - __main__ : cannot cast type record to tid
+LINE 4:             WHERE ctid = ANY(ARRAY[(0,1)::tid,(0,2)::tid,(0,...
+                                                ^
+
+2024-03-16 21:00:49.299 - [ERROR] - __main__ : cannot cast type record to tid[]
+LINE 4: ...ERE ctid = ANY(ARRAY[(0,1),(0,2),(0,3),(0,4),(0,5)::tid[]]);
+                                                             ^
+
+2024-03-16 21:01:03.880 - [ERROR] - __main__ : cannot cast type record to tid
+LINE 4:             WHERE ctid = ANY(ARRAY[(0,1),(0,2),(0,3),(0,4),(...
+                                           ^
+
+2024-03-16 21:01:06.602 - [ERROR] - __main__ : cannot cast type record to tid
+LINE 4:             WHERE ctid = ANY(ARRAY[(0,1),(0,2),(0,3),(0,4),(...
+                                           ^
+
+2024-03-16 21:01:07.825 - [ERROR] - __main__ : cannot cast type record to tid
+LINE 4:             WHERE ctid = ANY(ARRAY[(0,1),(0,2),(0,3),(0,4),(...
+                                           ^
+
+2024-03-17 09:04:04.803 - [ERROR] - __main__ : column name "ctid" conflicts with a system column name
+
+2024-03-17 09:11:32.428 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:11:32.428 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:13:18.452 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:13:18.453 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:15:34.829 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:15:34.829 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:16:51.072 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:16:51.072 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:23:03.532 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:23:03.532 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:30:35.353 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:30:35.353 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:35:07.961 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:35:07.961 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:35:11.561 - [ERROR] - __main__ : column "ctid" does not exist
+LINE 12:         SELECT ctid FROM selected;
+                        ^
+HINT:  There is a column named "ctid" in table "temp_ctid_holder", but it cannot be referenced from this part of the query.
+
+2024-03-17 09:40:23.030 - [ERROR] - __main__ : column "id" is of type bigint but expression is of type tid
+LINE 8:             SELECT *
+                           ^
+HINT:  You will need to rewrite or cast the expression.
+
+2024-03-17 09:56:36.470 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 09:56:36.470 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 16:25:22.111 - [ERROR] - src.preparation : Failed to prepare destination table '_transfer_workers': relation "_transfer_workers" already exists
+
+2024-03-17 16:25:22.111 - [ERROR] - __main__ : relation "_transfer_workers" already exists
+
+2024-03-17 16:25:33.503 - [ERROR] - src.preparation : Failed to prepare destination table '_transfer_workers': relation "_transfer_workers" already exists
+
+2024-03-17 16:25:33.503 - [ERROR] - __main__ : relation "_transfer_workers" already exists
+
+2024-03-17 16:57:56.451 - [ERROR] - src.preparation : Failed to prepare transfer table '_transfer_workers': relation "_transfer_workers" already exists
+
+2024-03-17 16:57:56.451 - [ERROR] - __main__ : relation "_transfer_workers" already exists
+
+2024-03-17 16:58:51.215 - [ERROR] - src.preparation : Failed to prepare destination table '_transfer_workers': relation "_transfer_workers" already exists
+
+2024-03-17 16:58:51.215 - [ERROR] - __main__ : relation "_transfer_workers" already exists
+
+2024-03-17 17:09:15.757 - [ERROR] - __main__ : column "id" is of type bigint but expression is of type boolean
+LINE 3:         SELECT s.*
+                       ^
+HINT:  You will need to rewrite or cast the expression.
+
+2024-03-17 17:12:16.398 - [ERROR] - __main__ : column "id" is of type bigint but expression is of type boolean
+LINE 3:         SELECT s.*
+                       ^
+HINT:  You will need to rewrite or cast the expression.
+
+2024-03-17 17:12:19.516 - [ERROR] - __main__ : column "id" is of type bigint but expression is of type boolean
+LINE 3:         SELECT s.*
+                       ^
+HINT:  You will need to rewrite or cast the expression.
+
+2024-03-17 17:12:19.782 - [ERROR] - __main__ : column "id" is of type bigint but expression is of type boolean
+LINE 3:         SELECT s.*
+                       ^
+HINT:  You will need to rewrite or cast the expression.
+
+2024-03-17 17:22:52.024 - [ERROR] - __main__ : column "id" is of type bigint but expression is of type boolean
+LINE 3:         SELECT s.*
+                       ^
+HINT:  You will need to rewrite or cast the expression.
+
+2024-03-17 17:23:12.906 - [ERROR] - __main__ : column "id" is of type bigint but expression is of type boolean
+LINE 3:         SELECT s.*
+                       ^
+HINT:  You will need to rewrite or cast the expression.
+
+2024-03-17 17:24:56.700 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:24:56.700 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:25:09.728 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:25:09.728 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:26:14.228 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:26:14.228 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:28:06.125 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:28:06.125 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:29:09.891 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:29:09.891 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:30:21.566 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:30:21.566 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:31:26.751 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:31:26.751 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:35:06.136 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:35:06.136 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:35:22.707 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:35:22.707 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:38:07.504 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 17:38:07.504 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 19:05:32.980 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 19:05:32.981 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 19:11:11.045 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 19:11:11.045 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 19:11:27.241 - [ERROR] - src.preparation : Failed to prepare destination table '_transfer_workers': trigger "_trg_update_seq_after_insert" for relation "_transfer_workers" already exists
+
+2024-03-17 19:11:27.241 - [ERROR] - __main__ : trigger "_trg_update_seq_after_insert" for relation "_transfer_workers" already exists
+
+2024-03-17 19:12:16.768 - [ERROR] - src.preparation : Failed to prepare destination table '_transfer_workers': syntax error at or near "OR"
+LINE 2:         CREATE TRIGGER OR REPLACE _trg_update_seq_after_inse...
+                               ^
+
+2024-03-17 19:12:16.768 - [ERROR] - __main__ : syntax error at or near "OR"
+LINE 2:         CREATE TRIGGER OR REPLACE _trg_update_seq_after_inse...
+                               ^
+
+2024-03-17 19:21:09.377 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 19:21:09.377 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 19:23:02.787 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 19:23:02.787 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 19:23:06.137 - [ERROR] - src.preparation : Failed to prepare destination table '_transfer_workers': syntax error at or near "PERFORM"
+LINE 7:                 PERFORM setval('_transfer_workers_id_seq', N...
+                        ^
+
+2024-03-17 19:23:06.137 - [ERROR] - __main__ : syntax error at or near "PERFORM"
+LINE 7:                 PERFORM setval('_transfer_workers_id_seq', N...
+                        ^
+
+2024-03-17 19:24:24.819 - [ERROR] - src.preparation : Failed to prepare destination table '_transfer_workers': syntax error at or near "END"
+LINE 8:             END IF;
+                    ^
+
+2024-03-17 19:24:24.820 - [ERROR] - __main__ : syntax error at or near "END"
+LINE 8:             END IF;
+                    ^
+
+2024-03-17 19:24:33.341 - [ERROR] - src.preparation : Failed to prepare destination table '_transfer_workers': syntax error at or near "END"
+LINE 8:             END IF;
+                    ^
+
+2024-03-17 19:24:33.341 - [ERROR] - __main__ : syntax error at or near "END"
+LINE 8:             END IF;
+                    ^
+
+2024-03-17 19:56:09.475 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 19:56:09.475 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 20:02:11.512 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 20:02:11.512 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 20:04:42.477 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 20:04:42.477 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 20:54:18.057 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 20:54:18.058 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 20:55:09.863 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 20:55:09.864 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:04:10.586 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:04:10.586 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:04:12.971 - [ERROR] - __main__ : set_session cannot be used inside a transaction
+2024-03-17 21:04:12.972 - [ERROR] - src.script_cleanup : An error occurred while cleaning up source-related script helpers: DROP INDEX CONCURRENTLY cannot run inside a transaction block
+
+2024-03-17 21:07:00.712 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:07:00.712 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:07:03.581 - [ERROR] - __main__ : set_session cannot be used inside a transaction
+2024-03-17 21:07:03.584 - [ERROR] - src.script_cleanup : An error occurred while cleaning up source-related script helpers: DROP INDEX CONCURRENTLY cannot run inside a transaction block
+
+2024-03-17 21:09:10.408 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:09:10.408 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:09:56.572 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:09:56.572 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:16:07.228 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:16:07.228 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:16:35.184 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:16:35.184 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:16:48.422 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:16:48.422 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:20:56.308 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 21:20:56.308 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
+2024-03-17 22:45:15.670 - [ERROR] - src.preparation : Failed to prepare source table 'workers': column "__processed__" of relation "workers" already exists
+
+2024-03-17 22:45:15.670 - [ERROR] - __main__ : column "__processed__" of relation "workers" already exists
+
