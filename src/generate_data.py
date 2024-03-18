@@ -1,7 +1,7 @@
 import psycopg2
 from faker import Faker
 import time
-from database_connector import DatabaseConnector
+from src.db_connector import DatabaseConnector
 
 connector = DatabaseConnector()
 

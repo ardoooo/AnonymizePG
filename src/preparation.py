@@ -34,6 +34,7 @@ def prepare_transfer_table(
     conn: psycopg2.extensions.connection,
     src_table: str,
     transfer_table: str,
+    id_column: str,
     publication: str,
 ):
     logger.info(f"Starting to prepare '{transfer_table}' based on '{src_table}'.")
@@ -44,7 +45,7 @@ def prepare_transfer_table(
         columns_str = ", ".join([f"{column[0]} {column[1]}" for column in columns])
 
         cur.execute(
-            f"CREATE TABLE {transfer_table} ({columns_str}, id BIGSERIAL PRIMARY KEY)"
+            f"CREATE TABLE {transfer_table} ({columns_str}, {id_column} BIGSERIAL PRIMARY KEY)"
         )
         logger.info(f"Created table '{transfer_table}'")
 
@@ -67,6 +68,8 @@ def prepare_dst_table(
     dst_conn: psycopg2.extensions.connection,
     src_conn_string: str,
     transfer_table: str,
+    proccesed_column: str,
+    id_column,
     publication: str,
     subscription: str,
 ):
@@ -75,12 +78,22 @@ def prepare_dst_table(
     dst_cur = dst_conn.cursor()
     try:
         columns = src.utils.get_columns(src_cur, transfer_table)
-        columns_str = ", ".join([f"{column[0]} {column[1]}{' PRIMARY KEY' if column[0] == 'id' else ''}" for column in columns])
+        columns_str = ", ".join([f"{column[0]} {column[1]}" for column in columns])
 
         dst_cur.execute(
             f"CREATE TABLE IF NOT EXISTS {transfer_table} ({columns_str});"
         )
+        dst_cur.execute(f"ALTER TABLE {transfer_table} ADD COLUMN IF NOT EXISTS {proccesed_column} BOOLEAN;")
+        dst_cur.execute(f"ALTER TABLE {transfer_table} ADD COLUMN IF NOT EXISTS {id_column} BOOLEAN;")
+
         logger.info(f"Created table '{transfer_table}' in destination database")
+
+
+
+        dst_cur.execute(
+            f"CREATE INDEX IF NOT EXISTS {id_column} ON {transfer_table}({id_column});"
+        )
+        logger.info(f"Created index for column '{id_column}' on '{transfer_table}'")
 
         dst_cur.execute(
             f"CREATE SUBSCRIPTION {subscription} CONNECTION '{src_conn_string}' PUBLICATION {publication};"

@@ -1,9 +1,9 @@
 import logging
 import multiprocessing
 
-from src.database_connector import DatabaseConnector
+from src.db_connector import DatabaseConnector
 import src.preparation
-import src.script_cleanup
+import src.cleanup_helpers
 import src.log_config
 import src.filling_transfer_table
 import src.removing_replicated
@@ -13,6 +13,7 @@ src.log_config.setup_logging()
 logger = logging.getLogger(__name__)
 
 
+ID_COLUMN = "__id__"
 PROCCESED_COLUMN = "__processed__"
 SRC_TABLE = "workers"
 TRANSFER_TABLE = "_transfer_" + SRC_TABLE
@@ -31,19 +32,21 @@ try:
     logger.info("Starting preparations")
     src.preparation.prepare_src_table(src_conn, SRC_TABLE, PROCCESED_COLUMN)
     src.preparation.prepare_transfer_table(
-        src_conn, SRC_TABLE, TRANSFER_TABLE, PUBLICATION
+        src_conn, SRC_TABLE, TRANSFER_TABLE, ID_COLUMN, PUBLICATION
     )
     src.preparation.prepare_dst_table(
         src_conn,
         dst_conn,
         connector.get_src_conn_string(),
         TRANSFER_TABLE,
+        PROCCESED_COLUMN,
+        ID_COLUMN,
         PUBLICATION,
         SUBSCRIPTION,
     )
     logger.info("Preparations completed successfully")
 
-    period_s = 2
+    period_s = 0.05
     stop_event = multiprocessing.Event()
 
     proc_to_remove = multiprocessing.Process(
@@ -52,6 +55,7 @@ try:
             connector.get_src_connection(),
             connector.get_dst_connection(),
             TRANSFER_TABLE,
+            ID_COLUMN,
             period_s,
             stop_event,
         ),
@@ -66,24 +70,27 @@ try:
     stop_event.set()
     proc_to_remove.join()
 
-except Exception as err:
-    logger.error(f"{err}")
-    src.script_cleanup.cleanup_script_helpers(
+    src.cleanup_helpers.cleanup_script_helpers(
         src_conn,
         dst_conn,
         SRC_TABLE,
+        ID_COLUMN,
         PROCCESED_COLUMN,
         TRANSFER_TABLE,
         PUBLICATION,
         SUBSCRIPTION,
     )
 
-src.script_cleanup.cleanup_script_helpers(
-    src_conn,
-    dst_conn,
-    SRC_TABLE,
-    PROCCESED_COLUMN,
-    TRANSFER_TABLE,
-    PUBLICATION,
-    SUBSCRIPTION,
-)
+except Exception as err:
+    logger.error(f"{err}")
+    src.cleanup_helpers.cleanup_script_helpers(
+        src_conn,
+        dst_conn,
+        SRC_TABLE,
+        ID_COLUMN,
+        PROCCESED_COLUMN,
+        TRANSFER_TABLE,
+        PUBLICATION,
+        SUBSCRIPTION,
+        after_except=True,
+    )
