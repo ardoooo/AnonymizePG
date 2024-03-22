@@ -1,7 +1,7 @@
 import logging
 import psycopg2
 
-import src.utils
+import src.utils.utils
 
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ def prepare_transfer_table(
     cur = conn.cursor()
 
     try:
-        columns = src.utils.get_columns(cur, src_table)
+        columns = src.utils.utils.get_columns(cur, src_table)
         columns_str = ", ".join([f"{column[0]} {column[1]}" for column in columns])
 
         cur.execute(
@@ -77,7 +77,7 @@ def prepare_dst_table(
     src_cur = src_conn.cursor()
     dst_cur = dst_conn.cursor()
     try:
-        columns = src.utils.get_columns(src_cur, transfer_table)
+        columns = src.utils.utils.get_columns(src_cur, transfer_table)
         columns_str = ", ".join([f"{column[0]} {column[1]}" for column in columns])
 
         dst_cur.execute(

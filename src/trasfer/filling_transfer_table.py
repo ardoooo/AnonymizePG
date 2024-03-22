@@ -131,6 +131,7 @@ def fill_transfer_table(
             f"Iteration: {iteration}, Total Selected: {total_selected}, Total Inserted: {total_converted}, Total Updated: {total_processed}"
         )
         if sleep_ms > 0:
+            logger.info(f"Sleep {sleep_ms} ms")
             time.sleep(sleep_ms / 1000)
 
     conn.commit()

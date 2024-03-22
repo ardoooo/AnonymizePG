@@ -1,14 +1,14 @@
 import logging
 import multiprocessing
 
-from src.db_connector import DatabaseConnector
-import src.preparation
-import src.cleanup_helpers
-import src.log_config
-import src.filling_transfer_table
-import src.removing_replicated
+from src.utils.db_connector import DatabaseConnector
+import src.preparations.preparation
+import src.preparations.cleanup_helpers
+import src.monitoring.log_config
+import src.trasfer.filling_transfer_table
+import src.trasfer.removing_replicated
 
-src.log_config.setup_logging()
+src.monitoring.log_config.setup_logging()
 
 logger = logging.getLogger(__name__)
 
@@ -30,11 +30,11 @@ dst_conn = connector.get_dst_connection()
 
 try:
     logger.info("Starting preparations")
-    src.preparation.prepare_src_table(src_conn, SRC_TABLE, PROCCESED_COLUMN)
-    src.preparation.prepare_transfer_table(
+    src.preparations.preparation.prepare_src_table(src_conn, SRC_TABLE, PROCCESED_COLUMN)
+    src.preparations.preparation.prepare_transfer_table(
         src_conn, SRC_TABLE, TRANSFER_TABLE, ID_COLUMN, PUBLICATION
     )
-    src.preparation.prepare_dst_table(
+    src.preparations.preparation.prepare_dst_table(
         src_conn,
         dst_conn,
         connector.get_src_conn_string(),
@@ -50,7 +50,7 @@ try:
     stop_event = multiprocessing.Event()
 
     proc_to_remove = multiprocessing.Process(
-        target=src.removing_replicated.remove_replicated_records,
+        target=src.trasfer.removing_replicated.remove_replicated_records,
         args=(
             connector.get_src_connection(),
             connector.get_dst_connection(),
@@ -63,14 +63,14 @@ try:
     proc_to_remove.start()
 
     batch_size = 5
-    src.filling_transfer_table.fill_transfer_table(
+    src.trasfer.filling_transfer_table.fill_transfer_table(
         src_conn, SRC_TABLE, TRANSFER_TABLE, batch_size, PROCCESED_COLUMN
     )
 
     stop_event.set()
     proc_to_remove.join()
 
-    src.cleanup_helpers.cleanup_script_helpers(
+    src.preparations.cleanup_helpers.cleanup_script_helpers(
         src_conn,
         dst_conn,
         SRC_TABLE,
@@ -83,7 +83,7 @@ try:
 
 except Exception as err:
     logger.error(f"{err}")
-    src.cleanup_helpers.cleanup_script_helpers(
+    src.preparations.cleanup_helpers.cleanup_script_helpers(
         src_conn,
         dst_conn,
         SRC_TABLE,
