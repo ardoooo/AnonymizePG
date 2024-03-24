@@ -1,5 +1,9 @@
 import logging
 import multiprocessing
+from pathlib import Path
+
+from src.settings import load_settings, get_settings
+load_settings()
 
 from src.utils.db_connector import DatabaseConnector
 import src.preparations.preparation
@@ -7,90 +11,105 @@ import src.preparations.cleanup_helpers
 import src.monitoring.log_config
 import src.trasfer.filling_transfer_table
 import src.trasfer.removing_replicated
-
-src.monitoring.log_config.setup_logging()
-
-logger = logging.getLogger(__name__)
+from src.names import *
 
 
-ID_COLUMN = "__id__"
-PROCCESED_COLUMN = "__processed__"
-SRC_TABLE = "workers"
-TRANSFER_TABLE = "_transfer_" + SRC_TABLE
-PUBLICATION = TRANSFER_TABLE + "_pub"
-SUBSCRIPTION = TRANSFER_TABLE + "_sub"
+logger = None
 
 
-logger.info("Start of work")
+def setup_settings():
+    global logger
 
-connector = DatabaseConnector()
+    settings = get_settings()
+    if 'logs_dir' in settings:
+        logs_dir = settings['logs_dir']
+        dir_path = Path(logs_dir)
+        dir_path.mkdir(parents=True, exist_ok=True)
 
-src_conn = connector.get_src_connection()
-dst_conn = connector.get_dst_connection()
+        src.monitoring.log_config.setup_logging(logs_dir + '/logs.log', logs_dir + '/error_logs.log')
+    else:
+        src.monitoring.log_config.setup_logging(None, None, True)
 
-try:
-    logger.info("Starting preparations")
-    src.preparations.preparation.prepare_src_table(src_conn, SRC_TABLE, PROCCESED_COLUMN)
-    src.preparations.preparation.prepare_transfer_table(
-        src_conn, SRC_TABLE, TRANSFER_TABLE, ID_COLUMN, PUBLICATION
-    )
-    src.preparations.preparation.prepare_dst_table(
-        src_conn,
-        dst_conn,
-        connector.get_src_conn_string(),
-        TRANSFER_TABLE,
-        PROCCESED_COLUMN,
-        ID_COLUMN,
-        PUBLICATION,
-        SUBSCRIPTION,
-    )
-    logger.info("Preparations completed successfully")
+    logger = logging.getLogger(__name__)
 
-    period_s = 0.05
-    stop_event = multiprocessing.Event()
 
-    proc_to_remove = multiprocessing.Process(
-        target=src.trasfer.removing_replicated.remove_replicated_records,
-        args=(
-            connector.get_src_connection(),
-            connector.get_dst_connection(),
+def process():
+    logger.info("Start of work")
+
+    connector = DatabaseConnector()
+
+    src_conn = connector.get_src_connection()
+    dst_conn = connector.get_dst_connection()
+
+    try:
+        logger.info("Starting preparations")
+        src.preparations.preparation.prepare_src_table(src_conn, SRC_TABLE, PROCCESED_COLUMN)
+        src.preparations.preparation.prepare_transfer_table(
+            src_conn, SRC_TABLE, TRANSFER_TABLE, ID_COLUMN, PUBLICATION
+        )
+        src.preparations.preparation.prepare_dst_table(
+            src_conn,
+            dst_conn,
+            connector.get_src_conn_string(),
             TRANSFER_TABLE,
+            PROCCESED_COLUMN,
             ID_COLUMN,
-            period_s,
-            stop_event,
-        ),
-    )
-    proc_to_remove.start()
+            PUBLICATION,
+            SUBSCRIPTION,
+        )
+        logger.info("Preparations completed successfully")
 
-    batch_size = 5
-    src.trasfer.filling_transfer_table.fill_transfer_table(
-        src_conn, SRC_TABLE, TRANSFER_TABLE, batch_size, PROCCESED_COLUMN
-    )
+        period_s = 3
+        stop_event = multiprocessing.Event()
 
-    stop_event.set()
-    proc_to_remove.join()
+        proc_to_remove = multiprocessing.Process(
+            target=src.trasfer.removing_replicated.remove_replicated_records,
+            args=(
+                connector.get_src_connection(),
+                connector.get_dst_connection(),
+                TRANSFER_TABLE,
+                ID_COLUMN,
+                period_s,
+                stop_event,
+            ),
+        )
+        proc_to_remove.start()
 
-    src.preparations.cleanup_helpers.cleanup_script_helpers(
-        src_conn,
-        dst_conn,
-        SRC_TABLE,
-        ID_COLUMN,
-        PROCCESED_COLUMN,
-        TRANSFER_TABLE,
-        PUBLICATION,
-        SUBSCRIPTION,
-    )
+        batch_size = 5
+        src.trasfer.filling_transfer_table.fill_transfer_table(
+            src_conn, SRC_TABLE, TRANSFER_TABLE, batch_size, PROCCESED_COLUMN, 1000
+        )
 
-except Exception as err:
-    logger.error(f"{err}")
-    src.preparations.cleanup_helpers.cleanup_script_helpers(
-        src_conn,
-        dst_conn,
-        SRC_TABLE,
-        ID_COLUMN,
-        PROCCESED_COLUMN,
-        TRANSFER_TABLE,
-        PUBLICATION,
-        SUBSCRIPTION,
-        after_except=True,
-    )
+        stop_event.set()
+        proc_to_remove.join()
+
+        src.preparations.cleanup_helpers.cleanup_script_helpers(
+            src_conn,
+            dst_conn,
+            SRC_TABLE,
+            ID_COLUMN,
+            PROCCESED_COLUMN,
+            TRANSFER_TABLE,
+            PUBLICATION,
+            SUBSCRIPTION,
+        )
+
+    except Exception as err:
+        logger.error(f"{err}")
+        src.preparations.cleanup_helpers.cleanup_script_helpers(
+            src_conn,
+            dst_conn,
+            SRC_TABLE,
+            ID_COLUMN,
+            PROCCESED_COLUMN,
+            TRANSFER_TABLE,
+            PUBLICATION,
+            SUBSCRIPTION,
+            after_except=True,
+        )
+
+
+if __name__ == "__main__":
+    setup_settings()
+
+    process()

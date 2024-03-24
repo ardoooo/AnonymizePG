@@ -1,7 +1,7 @@
 import psycopg2
 from faker import Faker
 import time
-from src.utils.db_connector import DatabaseConnector
+from db_connector import DatabaseConnector
 
 connector = DatabaseConnector()
 
@@ -11,7 +11,7 @@ src_conn.autocommit = False
 cur = src_conn.cursor()
 fake = Faker()
 
-for _ in range(15):
+for _ in range(1000):
     name = fake.name()
     salary = fake.random_number(digits=5)
     address = fake.address()

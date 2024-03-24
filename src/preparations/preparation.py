@@ -84,7 +84,7 @@ def prepare_dst_table(
             f"CREATE TABLE IF NOT EXISTS {transfer_table} ({columns_str});"
         )
         dst_cur.execute(f"ALTER TABLE {transfer_table} ADD COLUMN IF NOT EXISTS {proccesed_column} BOOLEAN;")
-        dst_cur.execute(f"ALTER TABLE {transfer_table} ADD COLUMN IF NOT EXISTS {id_column} BOOLEAN;")
+        dst_cur.execute(f"ALTER TABLE {transfer_table} ADD COLUMN IF NOT EXISTS {id_column} BIGINT;")
 
         logger.info(f"Created table '{transfer_table}' in destination database")
 

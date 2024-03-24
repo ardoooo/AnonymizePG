@@ -2,8 +2,32 @@ import logging.config
 
 
 def setup_logging(
-    log_file_path="logs/logs.log", error_log_file_path="logs/error_logs.log"
+    log_file_path: str,
+    error_log_file_path: str,
+    disable_logging=False,
 ):
+    if disable_logging:
+        logging.config.dictConfig(
+            {
+                "version": 1,
+                "disable_existing_loggers": True,
+                "handlers": {
+                    "null": {
+                        "level": "NOTSET",
+                        "class": "logging.NullHandler",
+                    },
+                },
+                "loggers": {
+                    "": {
+                        "handlers": ["null"],
+                        "level": "NOTSET",
+                        "propagate": False,
+                    }
+                },
+            }
+        )
+        return
+
     LOGGING_CONFIG = {
         "version": 1,
         "disable_existing_loggers": False,
@@ -15,7 +39,7 @@ def setup_logging(
         },
         "handlers": {
             "console": {
-                "level": "DEBUG",
+                "level": "INFO",
                 "class": "logging.StreamHandler",
                 "formatter": "detailed",
             },

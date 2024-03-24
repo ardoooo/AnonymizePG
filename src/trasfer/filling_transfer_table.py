@@ -2,8 +2,11 @@ import logging
 import psycopg2
 import time
 
+from src.monitoring import metrics
+
 
 logger = logging.getLogger(__name__)
+metrics = metrics.MetricsCollector()
 
 
 def create_temp_table(cur: psycopg2.extensions.cursor, temp_table_name: str):
@@ -104,13 +107,12 @@ def fill_transfer_table(
     create_temp_table(cur, temp_table_name)
 
     iteration = 0
-    total_selected = total_converted = total_processed = 0
 
     while True:
         selected = select_ctids(
             cur, temp_table_name, src_table, processed_column, batch_size
         )
-        total_selected += selected
+        metrics.increment_metric('total_selected_ctids', selected)
 
         if selected == 0:
             conn.commit()
@@ -118,26 +120,25 @@ def fill_transfer_table(
             break
 
         converted = convert_data(cur, src_table, transfer_table, temp_table_name)
-        total_converted += converted
+        metrics.increment_metric('total_converted', converted)
 
         processed = mark_processed(cur, src_table, temp_table_name, processed_column)
-        total_processed += processed
+        metrics.increment_metric('total_mark_processed', processed)
+
         clear_ctids(cur, temp_table_name)
 
         conn.commit()
 
         iteration += 1
-        logger.info(
-            f"Iteration: {iteration}, Total Selected: {total_selected}, Total Inserted: {total_converted}, Total Updated: {total_processed}"
+        logger.debug(
+            f"Iteration: {iteration})"
         )
+
         if sleep_ms > 0:
-            logger.info(f"Sleep {sleep_ms} ms")
+            logger.debug(f"Sleep {sleep_ms} ms")
             time.sleep(sleep_ms / 1000)
 
     conn.commit()
     conn.autocommit = True
 
     logger.info("Successfully completed the copying of records")
-    logger.info(
-        f"Final Total Selected: {total_selected}, Final Total Inserted: {total_converted}, Final Total Updated: {total_processed}"
-    )

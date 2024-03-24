@@ -1,9 +1,12 @@
 import logging
-import time
 import psycopg2
+import time
+
+from src.monitoring import metrics
 
 
 logger = logging.getLogger(__name__)
+metrics = metrics.MetricsCollector()
 
 
 def remove_replicated_records(
@@ -22,17 +25,15 @@ def remove_replicated_records(
             dst_cur.execute(f"SELECT MAX({id_column}) FROM {transfer_table}")
             max_id = dst_cur.fetchone()[0]
 
-            logger.warning(f"SELECT MAX({id_column}) FROM {transfer_table}")
-
-
             if max_id is not None:
                 src_cur.execute(f"DELETE FROM {transfer_table} WHERE {id_column} <= {max_id}")
                 deleted_count = src_cur.rowcount
-                logger.info(
+                logger.debug(
                     f"Records in {transfer_table} with {id_column} <= {max_id} deleted. Count: {deleted_count}"
                 )
+                metrics.increment_metric("total_deleted", deleted_count)
             else:
-                logger.info(f"No data to delete in the table {transfer_table}.")
+                logger.debug(f"No data to delete in the table {transfer_table}.")
 
             if period_s > 0:
                 time.sleep(period_s)
