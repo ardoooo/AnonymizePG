@@ -80,15 +80,15 @@ def prepare_dst_table(
         columns = src.utils.utils.get_columns(src_cur, transfer_table)
         columns_str = ", ".join([f"{column[0]} {column[1]}" for column in columns])
 
+        dst_cur.execute(f"CREATE TABLE IF NOT EXISTS {transfer_table} ({columns_str});")
         dst_cur.execute(
-            f"CREATE TABLE IF NOT EXISTS {transfer_table} ({columns_str});"
+            f"ALTER TABLE {transfer_table} ADD COLUMN IF NOT EXISTS {proccesed_column} BOOLEAN;"
         )
-        dst_cur.execute(f"ALTER TABLE {transfer_table} ADD COLUMN IF NOT EXISTS {proccesed_column} BOOLEAN;")
-        dst_cur.execute(f"ALTER TABLE {transfer_table} ADD COLUMN IF NOT EXISTS {id_column} BIGINT;")
+        dst_cur.execute(
+            f"ALTER TABLE {transfer_table} ADD COLUMN IF NOT EXISTS {id_column} BIGINT;"
+        )
 
         logger.info(f"Created table '{transfer_table}' in destination database")
-
-
 
         dst_cur.execute(
             f"CREATE INDEX IF NOT EXISTS {id_column} ON {transfer_table}({id_column});"

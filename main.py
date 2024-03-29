@@ -3,14 +3,15 @@ import multiprocessing
 from pathlib import Path
 
 from src.settings import load_settings, get_settings
+
 load_settings()
 
 from src.utils.db_connector import DatabaseConnector
 import src.preparations.preparation
 import src.preparations.cleanup_helpers
 import src.monitoring.log_config
-import src.trasfer.filling_transfer_table
-import src.trasfer.removing_replicated
+import src.replication_cleanup.replication_cleanup
+from src.transform import shuffler, copier
 from src.names import *
 
 
@@ -21,12 +22,14 @@ def setup_settings():
     global logger
 
     settings = get_settings()
-    if 'logs_dir' in settings:
-        logs_dir = settings['logs_dir']
+    if "logs_dir" in settings:
+        logs_dir = settings["logs_dir"]
         dir_path = Path(logs_dir)
         dir_path.mkdir(parents=True, exist_ok=True)
 
-        src.monitoring.log_config.setup_logging(logs_dir + '/logs.log', logs_dir + '/error_logs.log')
+        src.monitoring.log_config.setup_logging(
+            logs_dir + "/logs.log", logs_dir + "/error_logs.log"
+        )
     else:
         src.monitoring.log_config.setup_logging(None, None, True)
 
@@ -43,7 +46,9 @@ def process():
 
     try:
         logger.info("Starting preparations")
-        src.preparations.preparation.prepare_src_table(src_conn, SRC_TABLE, PROCCESED_COLUMN)
+        src.preparations.preparation.prepare_src_table(
+            src_conn, SRC_TABLE, PROCCESED_COLUMN
+        )
         src.preparations.preparation.prepare_transfer_table(
             src_conn, SRC_TABLE, TRANSFER_TABLE, ID_COLUMN, PUBLICATION
         )
@@ -59,11 +64,11 @@ def process():
         )
         logger.info("Preparations completed successfully")
 
-        period_s = 3
+        period_s = 1
         stop_event = multiprocessing.Event()
 
         proc_to_remove = multiprocessing.Process(
-            target=src.trasfer.removing_replicated.remove_replicated_records,
+            target=src.replication_cleanup.replication_cleanup.remove_replicated_records,
             args=(
                 connector.get_src_connection(),
                 connector.get_dst_connection(),
@@ -76,9 +81,27 @@ def process():
         proc_to_remove.start()
 
         batch_size = 5
-        src.trasfer.filling_transfer_table.fill_transfer_table(
-            src_conn, SRC_TABLE, TRANSFER_TABLE, batch_size, PROCCESED_COLUMN, 1000
+        # groups = get_settings()["processing_settings"]["groups"]
+        # trans = shuffler.Shuffler(
+        #     src_conn,
+        #     SRC_TABLE,
+        #     TRANSFER_TABLE,
+        #     PROCCESED_COLUMN,
+        #     batch_size,
+        #     1000,
+        #     groups,
+        # )
+
+        trans = copier.Copier(
+            src_conn,
+            SRC_TABLE,
+            TRANSFER_TABLE,
+            PROCCESED_COLUMN,
+            batch_size,
+            1000,
         )
+
+        trans()
 
         stop_event.set()
         proc_to_remove.join()
@@ -96,6 +119,7 @@ def process():
 
     except Exception as err:
         logger.error(f"{err}")
+        stop_event.set()
         src.preparations.cleanup_helpers.cleanup_script_helpers(
             src_conn,
             dst_conn,

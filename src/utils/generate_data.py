@@ -11,13 +11,15 @@ src_conn.autocommit = False
 cur = src_conn.cursor()
 fake = Faker()
 
-for _ in range(1000):
+for _ in range(10):
     name = fake.name()
     salary = fake.random_number(digits=5)
     address = fake.address()
 
-    cur.execute("INSERT INTO workers (name, salary, address) VALUES (%s, %s, %s)",
-                (name, salary, address))
+    cur.execute(
+        "INSERT INTO workers (name, salary, address) VALUES (%s, %s, %s)",
+        (name, salary, address),
+    )
 
     src_conn.commit()
 

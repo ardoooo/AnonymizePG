@@ -1,0 +1,22 @@
+{
+    "logs_dir": "/home/ardooo/learning/diplom/logs",
+    "metrics_dir": "/home/ardooo/learning/diplom/metrics",
+    "table": "workers",
+    "processing_settings": {
+        "method": "aggr_and_shuffle",
+        "columns": {
+            "adress": "max",
+            "salary": "avg",
+            "name": "echo"
+        },
+        "groups": [
+            [
+                "salary"
+            ],
+            [
+                "adress",
+                "name"
+            ]
+        ]
+    }
+}

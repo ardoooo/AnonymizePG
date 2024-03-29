@@ -1,0 +1,17 @@
+{
+    "logs_dir": "/home/ardooo/learning/diplom/logs",
+    "metrics_dir": "/home/ardooo/learning/diplom/metrics",
+    "table": "workers",
+    "processing_settings": {
+        "method": "select_random",
+        "groups": [
+            [
+                "salary"
+            ],
+            [
+                "adress",
+                "name"
+            ]
+        ]
+    }
+}

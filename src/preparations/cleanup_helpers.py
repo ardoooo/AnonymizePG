@@ -16,6 +16,7 @@ def src_cleanup_script_helpers(
     logger.info(
         f"Starting cleanup for source-related script helpers, after exception: {after_except}"
     )
+    conn.autocommit = True
     cur = conn.cursor()
 
     ifExistsClause = "IF EXISTS" if after_except else ""
@@ -57,6 +58,7 @@ def dst_cleanup_script_helpers(
     logger.info(
         f"Starting cleanup for destination-related script helpers, after exception: {after_except}"
     )
+    conn.autocommit = True
     cur = conn.cursor()
 
     try:
@@ -75,7 +77,9 @@ def dst_cleanup_script_helpers(
             logger.info(
                 f"Dropped column '{processed_column}' from table '{transfer_table}'"
             )
-            cur.execute(f"ALTER TABLE {transfer_table} DROP COLUMN {id_column} CASCADE;")
+            cur.execute(
+                f"ALTER TABLE {transfer_table} DROP COLUMN {id_column} CASCADE;"
+            )
             logger.info(f"Dropped column '{id_column}' from table '{transfer_table}'")
 
         logger.info(
@@ -106,5 +110,10 @@ def cleanup_script_helpers(
         src_conn, src_table, processed_column, transfer_table, publication, after_except
     )
     dst_cleanup_script_helpers(
-        dst_conn, transfer_table, id_column, processed_column, subscription, after_except
+        dst_conn,
+        transfer_table,
+        id_column,
+        processed_column,
+        subscription,
+        after_except,
     )

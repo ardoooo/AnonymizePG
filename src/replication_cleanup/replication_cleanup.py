@@ -26,7 +26,9 @@ def remove_replicated_records(
             max_id = dst_cur.fetchone()[0]
 
             if max_id is not None:
-                src_cur.execute(f"DELETE FROM {transfer_table} WHERE {id_column} <= {max_id}")
+                src_cur.execute(
+                    f"DELETE FROM {transfer_table} WHERE {id_column} <= {max_id}"
+                )
                 deleted_count = src_cur.rowcount
                 logger.debug(
                     f"Records in {transfer_table} with {id_column} <= {max_id} deleted. Count: {deleted_count}"

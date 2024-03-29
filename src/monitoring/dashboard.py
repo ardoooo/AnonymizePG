@@ -7,7 +7,9 @@ import plotly.graph_objects as go
 from src.monitoring import metrics
 
 
-metrics = metrics.MetricsCollector(db_path='/home/ardooo/learning/diplom/metrics/metrics.db')
+metrics = metrics.MetricsCollector(
+    db_path="/home/ardooo/learning/diplom/metrics/metrics.db"
+)
 
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
