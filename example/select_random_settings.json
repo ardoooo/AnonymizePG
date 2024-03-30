@@ -6,11 +6,11 @@
         "method": "select_random",
         "groups": [
             [
-                "salary"
+                "name"
             ],
             [
-                "adress",
-                "name"
+                "salary",
+                "address"
             ]
         ]
     }

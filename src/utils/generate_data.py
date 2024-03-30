@@ -11,7 +11,7 @@ src_conn.autocommit = False
 cur = src_conn.cursor()
 fake = Faker()
 
-for _ in range(10):
+for _ in range(1):
     name = fake.name()
     salary = fake.random_number(digits=5)
     address = fake.address()

@@ -29,18 +29,26 @@ class Transformer(ABC):
         self.batch_size = batch_size
         self.sleep_ms = sleep_ms
 
+        with self.conn.cursor() as cur:
+            self.column_types = {
+                column[0]: column[1] for column in utils.get_columns(cur, src_table)
+            }
+
         self.func_names = None
 
     def __del__(self):
         if not self.conn.closed:
             self.conn.autocommit = True
 
-    @abstractmethod
-    def prepare(self):
-        pass
+    def skip_process_last_batch(self):
+        return False
 
     @abstractmethod
     def get_funcs(self):
+        pass
+
+    @abstractmethod
+    def prepare(self):
         pass
 
     @abstractmethod
@@ -144,7 +152,9 @@ class Transformer(ABC):
                 selected = self.select_ctids()
                 metrics.increment_metric("total_selected_ctids", selected)
 
-                if selected == 0:
+                if (selected == 0) or (
+                    selected < self.batch_size and self.skip_process_last_batch()
+                ):
                     self.conn.commit()
                     break
 

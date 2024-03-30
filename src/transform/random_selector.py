@@ -9,7 +9,7 @@ from src.transform.transformer import Transformer
 logger = logging.getLogger(__name__)
 
 
-class Shuffler(Transformer):
+class RandomSelector(Transformer):
     def __init__(
         self,
         conn: psycopg2.extensions.connection,
@@ -27,6 +27,9 @@ class Shuffler(Transformer):
 
         self.new_types = []
         self.new_funcs = []
+
+    def skip_process_last_batch(self):
+        return True
 
     def get_funcs(self):
         return self.new_funcs
@@ -47,23 +50,35 @@ class Shuffler(Transformer):
             with self.conn.cursor() as cur:
                 cur.execute(create_type_query)
 
-            shuffle_func_name = "_select_random_" + utils.join_names(group, "_")
-            self.new_funcs.append(shuffle_func_name)
+            select_random_func_name = "_select_random_" + utils.join_names(group, "_")
+            self.new_funcs.append(select_random_func_name)
 
-            shuffle_func_query = f"""
-                CREATE OR REPLACE FUNCTION {shuffle_func_name}()
+            select_random_func_query = f"""
+                CREATE OR REPLACE FUNCTION {select_random_func_name}()
                 RETURNS SETOF {type_name} AS $$
+                DECLARE
+                    random_index INT;
+                    counter INT := 0;
+                    rec RECORD;
                 BEGIN
-                    RETURN QUERY SELECT {utils.join_names(group)} FROM {self.src_table} s
-                    JOIN {self.temp_table_name} t ON s.ctid = t._ctid_
-                    ORDER BY RANDOM();
+                    random_index := (random() * ({self.batch_size} - 1))::INT;
+                    FOR rec IN
+                        SELECT {utils.join_names(group)} FROM {self.src_table} s
+                        JOIN {self.temp_table_name} t ON s.ctid = t._ctid_
+                    LOOP
+                        IF counter = random_index THEN
+                            RETURN NEXT rec;
+                            EXIT;
+                        END IF;
+                        counter := counter + 1;
+                    END LOOP;
                 END;
                 $$ LANGUAGE plpgsql;"""
 
             with self.conn.cursor() as cur:
-                cur.execute(shuffle_func_query)
+                cur.execute(select_random_func_query)
 
-        logger.debug("Shuffler preparation successfully completed")
+        logger.debug("RandomSelector preparation successfully completed")
 
     def cleanup(self):
         type_str = ", ".join(self.new_types)
@@ -76,4 +91,4 @@ class Shuffler(Transformer):
             cur.execute(drop_types_query)
             cur.execute(drop_funcs_query)
 
-    logger.debug("Shuffler cleanup successfully completed")
+    logger.debug("RandomSelector cleanup successfully completed")

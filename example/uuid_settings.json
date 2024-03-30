@@ -6,7 +6,7 @@
         "method": "uuid",
         "columns": {
             "uuid": [
-                "adress",
+                "address",
                 "name"
             ],
             "echo": [

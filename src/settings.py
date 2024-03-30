@@ -3,7 +3,7 @@ import json
 SETTINGS = dict()
 
 
-def load_settings(path="example/shuffle_settings.json"):
+def load_settings(path="example/aggr_settings.json"):
     with open(path, "r") as f:
         global SETTINGS
         SETTINGS = json.load(f)

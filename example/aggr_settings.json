@@ -5,8 +5,9 @@
     "processing_settings": {
         "method": "aggr",
         "columns": {
-            "adress": "max",
-            "salary": "avg"
+            "name": "min",
+            "salary": "max",
+            "address": "echo"
         }
     }
 }

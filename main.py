@@ -11,7 +11,7 @@ import src.preparations.preparation
 import src.preparations.cleanup_helpers
 import src.monitoring.log_config
 import src.replication_cleanup.replication_cleanup
-from src.transform import shuffler, copier
+from src.transform import shuffler, copier, random_selector, aggregator, reduce_aggregator
 from src.names import *
 
 
@@ -46,6 +46,9 @@ def process():
 
     try:
         logger.info("Starting preparations")
+
+        stop_event = multiprocessing.Event()
+
         src.preparations.preparation.prepare_src_table(
             src_conn, SRC_TABLE, PROCCESED_COLUMN
         )
@@ -65,7 +68,6 @@ def process():
         logger.info("Preparations completed successfully")
 
         period_s = 1
-        stop_event = multiprocessing.Event()
 
         proc_to_remove = multiprocessing.Process(
             target=src.replication_cleanup.replication_cleanup.remove_replicated_records,
@@ -82,24 +84,26 @@ def process():
 
         batch_size = 5
         # groups = get_settings()["processing_settings"]["groups"]
-        # trans = shuffler.Shuffler(
-        #     src_conn,
-        #     SRC_TABLE,
-        #     TRANSFER_TABLE,
-        #     PROCCESED_COLUMN,
-        #     batch_size,
-        #     1000,
-        #     groups,
-        # )
+        column_methods = get_settings()["processing_settings"]["columns"]
 
-        trans = copier.Copier(
+        trans = reduce_aggregator.ReduceAggregator(
             src_conn,
             SRC_TABLE,
             TRANSFER_TABLE,
             PROCCESED_COLUMN,
             batch_size,
             1000,
+            column_methods,
         )
+
+        # trans = copier.Copier(
+        #     src_conn,
+        #     SRC_TABLE,
+        #     TRANSFER_TABLE,
+        #     PROCCESED_COLUMN,
+        #     batch_size,
+        #     1000,
+        # )
 
         trans()
 
@@ -118,7 +122,7 @@ def process():
         )
 
     except Exception as err:
-        logger.error(f"{err}")
+        logger.error(err)
         stop_event.set()
         src.preparations.cleanup_helpers.cleanup_script_helpers(
             src_conn,

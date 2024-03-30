@@ -23,10 +23,7 @@ class Copier(Transformer):
             conn, src_table, transfer_table, processed_column, batch_size, sleep_ms
         )
 
-        with self.conn.cursor() as cur:
-            columns = utils.get_columns(cur, src_table)
-            self.column_types = {column[0]: column[1] for column in columns}
-            self.columns = [column[0] for column in columns]
+        self.columns = [column for column in self.column_types]
 
         self.new_type = None
         self.new_func = None
@@ -49,7 +46,7 @@ class Copier(Transformer):
         with self.conn.cursor() as cur:
             cur.execute(create_type_query)
 
-        select_func_name = "select_" + utils.join_names(self.columns, "_")
+        select_func_name = "_select_" + utils.join_names(self.columns, "_")
         self.new_func = select_func_name
 
         select_func_query = f"""
