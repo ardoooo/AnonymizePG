@@ -3,12 +3,14 @@ import json
 SETTINGS = dict()
 
 
-def load_settings(path="example/aggr_settings.json"):
+def load_settings(path: str):
     with open(path, "r") as f:
         global SETTINGS
         SETTINGS = json.load(f)
 
 
 def get_settings():
-    global SETTINGS
     return SETTINGS
+
+def get_processing_settings():
+    return SETTINGS.get('processing_settings')

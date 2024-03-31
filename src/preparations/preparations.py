@@ -112,3 +112,29 @@ def prepare_dst_table(
     finally:
         src_cur.close()
         dst_cur.close()
+
+
+def prepare_all_tables(
+    src_conn: psycopg2.extensions.connection,
+    dst_conn: psycopg2.extensions.connection,
+    src_conn_string: str,
+    src_table: str,
+    transfer_table: str,
+    proccesed_column: str,
+    id_column,
+    publication: str,
+    subscription: str,
+):
+
+    prepare_src_table(src_conn, src_table, proccesed_column)
+    prepare_transfer_table(src_conn, src_table, transfer_table, id_column, publication)
+    prepare_dst_table(
+        src_conn,
+        dst_conn,
+        src_conn_string,
+        transfer_table,
+        proccesed_column,
+        id_column,
+        publication,
+        subscription,
+    )

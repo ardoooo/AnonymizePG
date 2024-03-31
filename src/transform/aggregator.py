@@ -18,12 +18,12 @@ class Aggregator(Transformer):
         processed_column: str,
         batch_size: int,
         sleep_ms: int,
-        column_methods: typing.Dict[str, str],
+        column_operations: typing.Dict[str, str],
     ):
         super().__init__(
             conn, src_table, transfer_table, processed_column, batch_size, sleep_ms
         )
-        self.column_methods = column_methods
+        self.column_operations = column_operations
 
         self.new_types = []
         self.new_funcs = []
@@ -34,7 +34,7 @@ class Aggregator(Transformer):
     def prepare(self):
         column_funcs = []
         columns = []
-        for column, method in self.column_methods.items():
+        for column, method in self.column_operations.items():
             columns.append(column)
 
             if method == "echo":
