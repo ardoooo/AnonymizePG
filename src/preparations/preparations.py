@@ -1,3 +1,4 @@
+import collections
 import logging
 import psycopg2
 
@@ -36,13 +37,13 @@ def prepare_transfer_table(
     transfer_table: str,
     id_column: str,
     publication: str,
+    table_schema,
 ):
     logger.info(f"Starting to prepare '{transfer_table}' based on '{src_table}'.")
     cur = conn.cursor()
 
     try:
-        columns = src.utils.utils.get_columns(cur, src_table)
-        columns_str = ", ".join([f"{column[0]} {column[1]}" for column in columns])
+        columns_str = ", ".join([f"{column[0]} {column[1]}" for column in table_schema])
 
         cur.execute(
             f"CREATE TABLE {transfer_table} ({columns_str}, {id_column} BIGSERIAL PRIMARY KEY)"
@@ -68,22 +69,18 @@ def prepare_dst_table(
     dst_conn: psycopg2.extensions.connection,
     src_conn_string: str,
     transfer_table: str,
-    proccesed_column: str,
     id_column,
     publication: str,
     subscription: str,
+    table_schema,
 ):
     logger.info(f"Starting to prepare destination table '{transfer_table}'")
     src_cur = src_conn.cursor()
     dst_cur = dst_conn.cursor()
     try:
-        columns = src.utils.utils.get_columns(src_cur, transfer_table)
-        columns_str = ", ".join([f"{column[0]} {column[1]}" for column in columns])
+        columns_str = ", ".join([f"{column[0]} {column[1]}" for column in table_schema])
 
         dst_cur.execute(f"CREATE TABLE IF NOT EXISTS {transfer_table} ({columns_str});")
-        dst_cur.execute(
-            f"ALTER TABLE {transfer_table} ADD COLUMN IF NOT EXISTS {proccesed_column} BOOLEAN;"
-        )
         dst_cur.execute(
             f"ALTER TABLE {transfer_table} ADD COLUMN IF NOT EXISTS {id_column} BIGINT;"
         )
@@ -124,17 +121,25 @@ def prepare_all_tables(
     id_column,
     publication: str,
     subscription: str,
+    transfer_table_schema,
 ):
 
     prepare_src_table(src_conn, src_table, proccesed_column)
-    prepare_transfer_table(src_conn, src_table, transfer_table, id_column, publication)
+    prepare_transfer_table(
+        src_conn,
+        src_table,
+        transfer_table,
+        id_column,
+        publication,
+        transfer_table_schema,
+    )
     prepare_dst_table(
         src_conn,
         dst_conn,
         src_conn_string,
         transfer_table,
-        proccesed_column,
         id_column,
         publication,
         subscription,
+        transfer_table_schema,
     )

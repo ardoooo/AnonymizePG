@@ -39,12 +39,12 @@ def setup_logging(
         },
         "handlers": {
             "console": {
-                "level": "DEBUG",
+                "level": "INFO",
                 "class": "logging.StreamHandler",
                 "formatter": "detailed",
             },
             "file_all": {
-                "level": "DEBUG",
+                "level": "INFO",
                 "class": "logging.FileHandler",
                 "filename": log_file_path,
                 "formatter": "detailed",

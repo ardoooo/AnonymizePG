@@ -28,6 +28,10 @@ class Aggregator(Transformer):
         self.new_types = []
         self.new_funcs = []
 
+    def get_transfer_table_schema(self):
+        column_names = self.column_operations.keys()
+        return [(column, self.column_types[column]) for column in column_names]
+
     def get_funcs(self):
         return self.new_funcs
 

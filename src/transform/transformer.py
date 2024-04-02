@@ -44,6 +44,10 @@ class Transformer(ABC):
         return False
 
     @abstractmethod
+    def get_transfer_table_schema(self):
+        pass
+
+    @abstractmethod
     def get_funcs(self):
         pass
 

@@ -28,6 +28,12 @@ class Shuffler(Transformer):
         self.new_types = []
         self.new_funcs = []
 
+    def get_transfer_table_schema(self):
+        column_names = []
+        for group in self.groups:
+            column_names.extend(group)
+        return [(column, self.column_types[column]) for column in column_names]
+
     def get_funcs(self):
         return self.new_funcs
 

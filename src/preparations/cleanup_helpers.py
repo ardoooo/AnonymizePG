@@ -51,7 +51,6 @@ def dst_cleanup_script_helpers(
     conn: psycopg2.extensions.connection,
     transfer_table: str,
     id_column: str,
-    processed_column: str,
     subscription: str,
     after_except: bool,
 ):
@@ -71,12 +70,6 @@ def dst_cleanup_script_helpers(
             cur.execute(f"DROP INDEX CONCURRENTLY {id_column};")
             logger.info(f"Dropped index for column '{id_column}'")
 
-            cur.execute(
-                f"ALTER TABLE {transfer_table} DROP COLUMN {processed_column} CASCADE;"
-            )
-            logger.info(
-                f"Dropped column '{processed_column}' from table '{transfer_table}'"
-            )
             cur.execute(
                 f"ALTER TABLE {transfer_table} DROP COLUMN {id_column} CASCADE;"
             )
@@ -113,7 +106,6 @@ def cleanup_script_helpers(
         dst_conn,
         transfer_table,
         id_column,
-        processed_column,
         subscription,
         after_except,
     )

@@ -18,15 +18,19 @@ class Copier(Transformer):
         processed_column: str,
         batch_size: int,
         sleep_ms: int,
+        columns: typing.List[str],
     ):
         super().__init__(
             conn, src_table, transfer_table, processed_column, batch_size, sleep_ms
         )
 
-        self.columns = [column for column in self.column_types]
+        self.columns = columns
 
         self.new_type = None
         self.new_func = None
+
+    def get_transfer_table_schema(self):
+        return [(column, self.column_types[column]) for column in self.columns]
 
     def get_funcs(self):
         return [self.new_func]

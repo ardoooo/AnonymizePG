@@ -37,28 +37,29 @@ def get_transformer(conn: psycopg2.extensions.connection):
     settings = get_processing_settings()
 
     common_settings = {
-        'conn': conn,
-        'src_table': names.SRC_TABLE,
-        'transfer_table': names.TRANSFER_TABLE,
-        'processed_column': names.PROCCESED_COLUMN,
-        'batch_size': settings['batch_size'],
-        'sleep_ms': settings['batch_sleep_ms']}
+        "conn": conn,
+        "src_table": names.SRC_TABLE,
+        "transfer_table": names.TRANSFER_TABLE,
+        "processed_column": names.PROCCESED_COLUMN,
+        "batch_size": settings["batch_size"],
+        "sleep_ms": settings["batch_sleep_ms"],
+    }
 
-    method = settings['method']
+    method = settings["method"]
 
-    if method == 'echo':
+    if method == "echo":
         return transform.copier.Copier(**common_settings)
-    elif method == 'aggr':
-        common_settings['column_operations'] = settings['column_operations']
+    elif method == "aggr":
+        common_settings["column_operations"] = settings["column_operations"]
         return transform.aggregator.Aggregator(**common_settings)
-    elif method == 'reduce_aggr':
-        common_settings['column_operations'] = settings['column_operations']
+    elif method == "reduce_aggr":
+        common_settings["column_operations"] = settings["column_operations"]
         return transform.reduce_aggregator.ReduceAggregator(**common_settings)
-    elif method == 'shuffle':
-        common_settings['groups'] = settings['groups']
+    elif method == "shuffle":
+        common_settings["groups"] = settings["groups"]
         return transform.shuffler.Shuffler(**common_settings)
-    elif method == 'select_random':
-        common_settings['groups'] = settings['groups']
+    elif method == "select_random":
+        common_settings["groups"] = settings["groups"]
         return transform.random_selector.RandomSelector(**common_settings)
 
 
@@ -76,6 +77,10 @@ def process():
 
         logger.info("Starting preparations")
 
+        transform = get_transformer(src_conn)
+
+        transfer_table_schema = transform.get_transfer_table_schema()
+
         preparations.prepare_all_tables(
             src_conn,
             dst_conn,
@@ -86,6 +91,7 @@ def process():
             names.ID_COLUMN,
             names.PUBLICATION,
             names.SUBSCRIPTION,
+            transfer_table_schema,
         )
         logger.info("Preparations completed successfully")
 
@@ -103,8 +109,7 @@ def process():
         logger.info("Starting remove replicated process")
         proc_to_remove.start()
 
-        transform = get_transformer(src_conn)
-        transform()
+        transform.process()
 
         stop_event.set()
         proc_to_remove.join()
@@ -143,7 +148,12 @@ def process():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("settings", type=str, help="Path to the configuration file.", default='example/aggr_settings.json')
+    parser.add_argument(
+        "settings",
+        type=str,
+        help="Path to the configuration file.",
+        default="example/aggr_settings.json",
+    )
     args = parser.parse_args()
 
     load_settings(args.settings)

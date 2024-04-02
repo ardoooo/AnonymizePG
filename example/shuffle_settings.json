@@ -9,11 +9,10 @@
         "delete_sleep_s": 1,
         "groups": [
             [
-                "name"
+                "salary"
             ],
             [
-                "salary",
-                "address"
+                "name"
             ]
         ]
     }
