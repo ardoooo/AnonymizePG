@@ -61,6 +61,9 @@ def get_transformer(conn: psycopg2.extensions.connection):
     elif method == "select_random":
         common_settings["groups"] = settings["groups"]
         return transform.random_selector.RandomSelector(**common_settings)
+    elif method == "uuid":
+        common_settings["column_operations"] = settings["column_operations"]
+        return transform.uuid_replacer.UuidReplacer(**common_settings)
 
 
 def process():
@@ -106,8 +109,8 @@ def process():
                 stop_event,
             ),
         )
-        logger.info("Starting remove replicated process")
         proc_to_remove.start()
+        logger.info("Starting remove replicated process")
 
         transform.process()
 
@@ -148,12 +151,7 @@ def process():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "settings",
-        type=str,
-        help="Path to the configuration file.",
-        default="example/aggr_settings.json",
-    )
+    parser.add_argument("settings", type=str, help="Path to the configuration file.")
     args = parser.parse_args()
 
     load_settings(args.settings)

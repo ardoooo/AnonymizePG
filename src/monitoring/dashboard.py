@@ -133,12 +133,14 @@ def update_graph(n_clicks, n_intervals):
     [Input("interval-component", "n_intervals")],
 )
 def update_metric3_graph(n_clicks, n_intervals):
-    timestamps, values = metrics.get_metric("metric3")
+    timestamps, values = metrics.get_metric("batch_time_execution_s")
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=timestamps, y=values, mode="lines", name="metric3"))
+    fig.add_trace(
+        go.Scatter(x=timestamps, y=values, mode="lines", name="batch_time_execution_s")
+    )
 
     fig.update_layout(
-        title="Динамика Metric3",
+        title="Время обработки одного батча",
         yaxis_title="Значение",
         template="plotly_dark",
         title_font_color="#FFA07A",

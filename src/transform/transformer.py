@@ -153,6 +153,8 @@ class Transformer(ABC):
             self.conn.commit()
 
             while True:
+                start_time = time.time()
+
                 selected = self.select_ctids()
                 metrics.increment_metric("total_selected_ctids", selected)
 
@@ -172,6 +174,10 @@ class Transformer(ABC):
                 self.truncate_stids_table()
                 self.conn.commit()
                 logger.debug("Completed iteration")
+
+                end_time = time.time()
+                elapsed_time = end_time - start_time
+                metrics.add_metric("batch_time_execution_s", elapsed_time)
 
             if self.sleep_ms > 0:
                 logger.debug(f"Sleep {self.sleep_ms} ms")
