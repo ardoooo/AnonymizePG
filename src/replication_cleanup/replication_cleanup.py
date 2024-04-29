@@ -3,15 +3,16 @@ import psycopg2
 import time
 
 from src.monitoring import metrics
+from src.utils import db_connector
 
 
 logger = logging.getLogger(__name__)
 metrics = metrics.MetricsCollector()
 
 
-def remove_replicated_records(
+def remove_replicated_records(  
     src_conn: psycopg2.extensions.connection,
-    dst_conn: psycopg2.extensions.connection,
+    dst_conn: db_connector.MultiClusterConnection,
     transfer_table: str,
     id_column: str,
     period_s: int,
@@ -23,7 +24,7 @@ def remove_replicated_records(
             src_cur = src_conn.cursor()
 
             dst_cur.execute(f"SELECT MAX({id_column}) FROM {transfer_table}")
-            max_id = dst_cur.fetchone()[0]
+            max_id = min(dst_cur.fetchall()[0][0])
 
             if max_id is not None:
                 src_cur.execute(

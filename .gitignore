@@ -2,3 +2,4 @@
 *__pycache__*
 logs/*
 *generate_data*
+src/transform/AnonymizePG.code-workspace

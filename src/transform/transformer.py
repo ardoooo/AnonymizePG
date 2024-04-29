@@ -179,9 +179,9 @@ class Transformer(ABC):
                 elapsed_time = end_time - start_time
                 metrics.add_metric("batch_time_execution_s", elapsed_time)
 
-            if self.sleep_ms > 0:
-                logger.debug(f"Sleep {self.sleep_ms} ms")
-                time.sleep(self.sleep_ms / 1000)
+                if self.sleep_ms > 0:
+                    logger.debug(f"Sleep {self.sleep_ms} ms")
+                    time.sleep(self.sleep_ms / 1000)
 
         except psycopg2.Error as err:
             self.conn.rollback()
