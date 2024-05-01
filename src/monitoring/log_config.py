@@ -44,7 +44,7 @@ def setup_logging(
                 "formatter": "detailed",
             },
             "file_all": {
-                "level": "INFO",
+                "level": "DEBUG",
                 "class": "logging.FileHandler",
                 "filename": log_file_path,
                 "formatter": "detailed",

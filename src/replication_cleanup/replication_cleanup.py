@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 metrics = metrics.MetricsCollector()
 
 
-def remove_replicated_records(  
+def remove_replicated_records(
     src_conn: psycopg2.extensions.connection,
     dst_conn: db_connector.MultiClusterConnection,
     transfer_table: str,
@@ -18,7 +18,7 @@ def remove_replicated_records(
     period_s: int,
     stop_event,
 ):
-    while not stop_event.is_set():
+    while True:
         try:
             dst_cur = dst_conn.cursor()
             src_cur = src_conn.cursor()
@@ -35,6 +35,9 @@ def remove_replicated_records(
                     f"Records in {transfer_table} with {id_column} <= {max_id} deleted. Count: {deleted_count}"
                 )
                 metrics.increment_metric("total_deleted", deleted_count)
+
+                if deleted_count == 0 and stop_event.is_set():
+                    break
             else:
                 logger.debug(f"No data to delete in the table {transfer_table}.")
 

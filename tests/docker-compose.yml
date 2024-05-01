@@ -1,0 +1,46 @@
+services:
+  postgres_prod:
+    image: postgres:14-alpine
+    command: ["postgres", "-c", "config_file=/etc/postgresql.conf"]
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db1
+    volumes:
+      - ./postgresql.conf:/etc/postgresql.conf
+    networks:
+      test_network:
+        ipv4_address: 172.16.238.10
+
+  postgres_test1:
+    image: postgres:14-alpine
+    command: ["postgres", "-c", "config_file=/etc/postgresql.conf"]
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db1
+    volumes:
+      - ./postgresql.conf:/etc/postgresql.conf
+    networks:
+      test_network:
+        ipv4_address: 172.16.238.11
+
+  postgres_test2:
+    image: postgres:14-alpine
+    command: ["postgres", "-c", "config_file=/etc/postgresql.conf"]
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db1
+    volumes:
+      - ./postgresql.conf:/etc/postgresql.conf
+    networks:
+      test_network:
+        ipv4_address: 172.16.238.12
+
+networks:
+  test_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.238.0/24

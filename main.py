@@ -47,7 +47,8 @@ def get_transformer(conn: psycopg2.extensions.connection):
 
     method = settings["method"]
 
-    if method == "echo":
+    if method == "copy":
+        common_settings["columns"] = settings["columns"]
         return transform.copier.Copier(**common_settings)
     elif method == "aggr":
         common_settings["column_operations"] = settings["column_operations"]
