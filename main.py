@@ -156,6 +156,7 @@ def main():
     args = parser.parse_args()
 
     load_settings(args.settings)
+    # load_settings('AnonymizePG/example/shuffle_settings.json')
     setup_logger_settings()
 
     process()

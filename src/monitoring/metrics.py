@@ -16,7 +16,7 @@ class MetricsCollectorStub:
     def increment_metric(self, name, increment_value):
         pass
 
-    def get_metric(self, name):
+    def get_metric_by_name(self, name):
         return [], []
 
 
@@ -60,6 +60,7 @@ class MetricsCollector:
             id INTEGER PRIMARY KEY,
             name TEXT NOT NULL,
             value REAL NOT NULL,
+            tag TEXT DEFAULT NULL,
             timestamp DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now'))
         );
         """
@@ -67,21 +68,37 @@ class MetricsCollector:
         cur.execute(
             "CREATE INDEX IF NOT EXISTS idx_name_timestamp ON metrics(name, timestamp);"
         )
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS idx_tag ON metrics(tag) WHERE tag is not NULL;"
+        )
         MetricsCollector.__instance.conn.commit()
         cur.close()
 
-    def add_metric(self, name, value):
+    def add_metric(self, name, value, tag=None):
         cur = self.conn.cursor()
-        cur.execute("INSERT INTO metrics (name, value) VALUES (?, ?)", (name, value))
+        cur.execute("INSERT INTO metrics (name, value, tag) VALUES (?, ?, ?)", (name, value, tag))
         self.conn.commit()
         cur.close()
+
+    def add_metrics_array(self, name, values, tags):
+        for value, tag in zip(values, tags):
+            self.add_metric(name, value, tag)
 
     def increment_metric(self, name, increment_value):
         new_value = self.last_values.get(name, 0) + increment_value
         self.last_values[name] = new_value
         self.add_metric(name, new_value)
 
-    def get_metric(self, name):
+    def increment_metrics_array(self, name, increment_values, tags):
+        if name not in self.last_values:
+            self.last_values[name] = {}
+
+        for inc_val, tag in zip(increment_values, tags):
+            new_value = self.last_values.get(name).get(tag, 0) + inc_val
+            self.last_values[name][tag] = new_value
+            self.add_metric(name, new_value, tag)
+
+    def get_metric_by_name(self, name):
         cur = self.conn.cursor()
         query = "SELECT value, timestamp FROM metrics WHERE name=?"
         cur.execute(query, (name,))
@@ -92,3 +109,33 @@ class MetricsCollector:
         values = [value for value, _ in results]
 
         return timestamps, values
+
+    def get_metric_by_tag_and_name(self, tag, name):
+        cur = self.conn.cursor()
+        query = "SELECT value, timestamp FROM metrics WHERE tag=? and name=?"
+        cur.execute(query, (tag, name))
+        results = cur.fetchall()
+        cur.close()
+
+        timestamps = [timestamp for _, timestamp in results]
+        values = [value for value, _ in results]
+
+        return timestamps, values
+
+    def get_all_tags(self):
+        cur = self.conn.cursor()
+
+        query = "SELECT DISTINCT tag FROM metrics WHERE tag IS NOT NULL"
+        cur.execute(query)
+
+        tags = [row[0] for row in cur.fetchall()]
+
+        self.conn.commit()
+        cur.close()
+
+        return tags
+
+    def get_hosts(self):
+        tags = self.get_all_tags()
+        hosts = [tag for tag in tags if tag[:5] == 'host=']
+        return hosts

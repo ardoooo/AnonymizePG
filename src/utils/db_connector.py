@@ -1,10 +1,12 @@
 import os
 import json
+import types
 from dotenv import load_dotenv
 import psycopg2
 import logging
 import enum
 import typing
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -19,11 +21,18 @@ class MultiClusterCursor:
         self.cursors = cursors
 
     def execute(self, query, params=None):
-        for cursor in self.cursors:
-            cursor.execute(query, params)
+        if isinstance(params, types.GeneratorType):
+            for cursor in self.cursors:
+                cursor.execute(query, next(params))
+        else:
+            for cursor in self.cursors:
+                cursor.execute(query, params)
 
     def fetchall(self):
         return [cursor.fetchall() for cursor in self.cursors]
+
+    def fetchone(self):
+        return [cursor.fetchone() for cursor in self.cursors]
 
     def close(self):
         for cursor in self.cursors:
@@ -55,6 +64,13 @@ def _close_connection_impl(conn):
         logger.info(f"Database connection already closed ({conn.dsn})")
 
 
+def _extract_host(dsn):
+    match = re.search(r"host=([^ ]+)", dsn)
+    if match:
+        return 'host=' + match.group(1)
+    return None
+
+
 class MultiClusterConnection:
     def __init__(self, conn_strs: typing.List[str]):
         self.connections = [_create_connection(conn_str) for conn_str in conn_strs]
@@ -81,6 +97,9 @@ class MultiClusterConnection:
         for conn in self.connections:
             conn.autocommit = option
 
+    def get_hosts(self):
+        return [_extract_host(conn.dsn) for conn in self.connections]
+
 
 def _close_connection(
     conn: typing.Union[psycopg2.extensions.connection, MultiClusterConnection]
@@ -94,7 +113,7 @@ def _close_connection(
 class DatabaseConnector:
     def __init__(self):
         load_dotenv()
-        aa = os.getenv("DST_CONN_STRINGS")
+
         self.conn_strings = {
             ConnStringType.SOURCE: os.getenv("SRC_CONN_STRING"),
             ConnStringType.DESTINATION: json.loads(

@@ -24,7 +24,14 @@ def remove_replicated_records(
             src_cur = src_conn.cursor()
 
             dst_cur.execute(f"SELECT MAX({id_column}) FROM {transfer_table}")
-            max_id = min(dst_cur.fetchall()[0][0])
+            rpl_cnts = dst_cur.fetchone()
+
+            metrics_array = [cnt[0] if cnt[0] is not None else 0 for cnt in rpl_cnts]
+            metrics.add_metrics_array('total_cnt', metrics_array, dst_conn.get_hosts())
+
+            max_id = None
+            if all([cnt[0] is not None for cnt in rpl_cnts]):
+                max_id = min([cnt[0] for cnt in rpl_cnts])
 
             if max_id is not None:
                 src_cur.execute(

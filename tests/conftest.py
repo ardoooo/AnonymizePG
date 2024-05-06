@@ -11,7 +11,8 @@ def prepare_env():
     try:
         yield
     finally:
-        subprocess.run(["docker-compose", "down"], check=True)
+        subprocess.run(["docker-compose", "down", "-v"], check=True)
+        pass
 
 
 def create_conn(host, dbname):

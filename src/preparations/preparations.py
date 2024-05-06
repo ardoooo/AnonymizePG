@@ -64,6 +64,13 @@ def prepare_transfer_table(
         cur.close()
 
 
+def slot_name_generator():
+    i = 1
+    while True:
+        yield (f"transfer_slot_replica_{i}",)
+        i += 1
+
+
 def prepare_dst_table(
     src_conn: psycopg2.extensions.connection,
     dst_conn: psycopg2.extensions.connection,
@@ -93,7 +100,8 @@ def prepare_dst_table(
         logger.info(f"Created index for column '{id_column}' on '{transfer_table}'")
 
         dst_cur.execute(
-            f"CREATE SUBSCRIPTION {subscription} CONNECTION '{src_conn_string}' PUBLICATION {publication};"
+            f"CREATE SUBSCRIPTION {subscription} CONNECTION '{src_conn_string}' PUBLICATION {publication} WITH (slot_name = %s);",
+            slot_name_generator(),
         )
         logger.info(
             f"Created subscription '{subscription}' for publication '{publication}'"
