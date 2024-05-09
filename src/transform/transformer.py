@@ -3,12 +3,11 @@ import psycopg2
 import time
 from abc import ABC, abstractmethod
 
-from src.monitoring import metrics
+from src.monitoring.metrics import get_metrics_collector
 from src.utils import utils
 
 
 logger = logging.getLogger(__name__)
-metrics = metrics.MetricsCollector()
 
 
 class Transformer(ABC):
@@ -18,6 +17,7 @@ class Transformer(ABC):
         src_table: str,
         transfer_table: str,
         processed_column: str,
+        continuous_mode: bool,
         batch_size: int,
         sleep_ms: int,
     ):
@@ -26,6 +26,7 @@ class Transformer(ABC):
         self.transfer_table = transfer_table
         self.temp_table_name = "temp_ctid_holder"
         self.processed_column = processed_column
+        self.continuous_mode = continuous_mode
         self.batch_size = batch_size
         self.sleep_ms = sleep_ms
 
@@ -156,20 +157,24 @@ class Transformer(ABC):
                 start_time = time.time()
 
                 selected = self.select_ctids()
-                metrics.increment_metric("total_selected_ctids", selected)
+                get_metrics_collector().increment_metric("total_selected_ctids", selected)
 
-                if (selected == 0) or (
-                    selected < self.batch_size and self.skip_process_last_batch()
-                ):
-                    self.conn.commit()
-                    break
+                if (selected == 0) or (selected < self.batch_size and self.skip_process_last_batch()):
+                    if self.continuous_mode:
+                        if self.sleep_ms > 0:
+                            logger.debug(f"Sleep {self.sleep_ms} ms")
+                            time.sleep(self.sleep_ms / 1000)
+                        continue
+                    else:
+                        self.conn.commit()
+                        break
 
                 converted = self.insert_into_transfer_table()
-                metrics.increment_metric("total_converted", converted)
+                get_metrics_collector().increment_metric("total_converted", converted)
 
                 processed = self.mark_processed()
                 self.conn.commit()
-                metrics.increment_metric("total_mark_processed", processed)
+                get_metrics_collector().increment_metric("total_mark_processed", processed)
 
                 self.truncate_stids_table()
                 self.conn.commit()
@@ -177,7 +182,7 @@ class Transformer(ABC):
 
                 end_time = time.time()
                 elapsed_time = end_time - start_time
-                metrics.add_metric("batch_time_execution_s", elapsed_time)
+                get_metrics_collector().add_metric("batch_time_execution_s", elapsed_time)
 
                 if self.sleep_ms > 0:
                     logger.debug(f"Sleep {self.sleep_ms} ms")

@@ -6,7 +6,6 @@ from src.settings import get_settings
 
 
 class MetricsCollectorStub:
-    @staticmethod
     def _initialize_db():
         pass
 
@@ -21,10 +20,10 @@ class MetricsCollectorStub:
 
 
 class MetricsCollector:
-    __instance = None
+    __init_db = False
     __lock = Lock()
 
-    def __new__(cls, db_path=None, disable_metrics=True):
+    def __init__(self, db_path=None, disable_metrics=True):
         settings = get_settings()
         if db_path is not None or "metrics_dir" in settings:
             disable_metrics = False
@@ -36,25 +35,25 @@ class MetricsCollector:
 
             db_path = metrics_dir + "/metrics.db"
 
-        with cls.__lock:
-            if cls.__instance is None:
-                if disable_metrics:
-                    cls.__instance = MetricsCollectorStub()
-                    return cls.__instance
+        if disable_metrics:
+            self.__class__ = MetricsCollectorStub
+            return
 
-                cls.__instance = super().__new__(cls)
-                cls.__instance.db_path = db_path
-                cls.__instance.conn = sqlite3.connect(db_path, check_same_thread=False)
-                cls.__instance.last_values = {}
-                cls.__instance._initialize_db()
-            return cls.__instance
+        self.db_path = db_path
+        self.conn = sqlite3.connect(db_path)
+        self.last_values = {}
+
+        with MetricsCollector.__lock:
+            if not MetricsCollector.__init_db:
+                self._initialize_db()
+                MetricsCollector.__init_db = True
 
     def __del__(self):
-        self.conn.close()
+        if hasattr(self, 'conn'):
+            self.conn.close()
 
-    @staticmethod
-    def _initialize_db():
-        cur = MetricsCollector.__instance.conn.cursor()
+    def _initialize_db(self):
+        cur = self.conn.cursor()
         query = """
         CREATE TABLE IF NOT EXISTS metrics (
             id INTEGER PRIMARY KEY,
@@ -71,7 +70,7 @@ class MetricsCollector:
         cur.execute(
             "CREATE INDEX IF NOT EXISTS idx_tag ON metrics(tag) WHERE tag is not NULL;"
         )
-        MetricsCollector.__instance.conn.commit()
+        self.conn.commit()
         cur.close()
 
     def add_metric(self, name, value, tag=None):
@@ -139,3 +138,21 @@ class MetricsCollector:
         tags = self.get_all_tags()
         hosts = [tag for tag in tags if tag[:5] == 'host=']
         return hosts
+
+
+class LazyMetricsCollector:
+    __instance = None
+
+    def __init__(self, db_path=None):
+        if LazyMetricsCollector.__instance is None and db_path is not None:
+            LazyMetricsCollector.__instance = MetricsCollector(db_path)
+
+    @classmethod
+    def get_instance(cls):
+        if cls.__instance is None:
+            raise ValueError("MetricsCollector is not initialized yet")
+        return cls.__instance
+
+
+def get_metrics_collector():
+    return LazyMetricsCollector.get_instance()

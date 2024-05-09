@@ -3,6 +3,7 @@
     "metrics_dir": "/home/ardooo/learning/diplom/metrics",
     "table": "workers",
     "processing_settings": {
+        "continuous_mode": true,
         "method": "copy",
         "batch_size": 5,
         "batch_sleep_ms": 0,

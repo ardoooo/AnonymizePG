@@ -4,7 +4,7 @@
     "table": "workers",
     "processing_settings": {
         "method": "shuffle",
-        "batch_size": 5,
+        "batch_size": 50,
         "batch_sleep_ms": 100,
         "delete_sleep_s": 1,
         "groups": [

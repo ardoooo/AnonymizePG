@@ -66,14 +66,13 @@ def dst_cleanup_script_helpers(
         )
         logger.info(f"Dropped subscription '{subscription}'")
 
-        if not after_except:
-            cur.execute(f"DROP INDEX CONCURRENTLY {id_column};")
-            logger.info(f"Dropped index for column '{id_column}'")
+        cur.execute(f"DROP INDEX CONCURRENTLY {id_column};")
+        logger.info(f"Dropped index for column '{id_column}'")
 
-            cur.execute(
-                f"ALTER TABLE {transfer_table} DROP COLUMN {id_column} CASCADE;"
-            )
-            logger.info(f"Dropped column '{id_column}' from table '{transfer_table}'")
+        cur.execute(
+            f"ALTER TABLE {transfer_table} DROP COLUMN {id_column} CASCADE;"
+        )
+        logger.info(f"Dropped column '{id_column}' from table '{transfer_table}'")
 
         logger.info(
             "Successfully completed cleanup for destination-related script helpers"
@@ -99,6 +98,10 @@ def cleanup_script_helpers(
     subscription: str,
     after_except: bool = False,
 ):
+    if after_except:
+        src_conn.rollback()
+        dst_conn.rollback()
+
     src_cleanup_script_helpers(
         src_conn, src_table, processed_column, transfer_table, publication, after_except
     )

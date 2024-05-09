@@ -41,6 +41,7 @@ def get_transformer(conn: psycopg2.extensions.connection):
         "src_table": names.SRC_TABLE,
         "transfer_table": names.TRANSFER_TABLE,
         "processed_column": names.PROCCESED_COLUMN,
+        "continuous_mode": settings.get("continuous_mode", False),
         "batch_size": settings["batch_size"],
         "sleep_ms": settings["batch_sleep_ms"],
     }
@@ -67,34 +68,56 @@ def get_transformer(conn: psycopg2.extensions.connection):
         return transform.uuid_replacer.UuidReplacer(**common_settings)
 
 
+def cleanup(src_conn, dst_conn, after_exception=False):
+    cleanup_helpers.cleanup_script_helpers(
+        src_conn,
+        dst_conn,
+        names.SRC_TABLE,
+        names.ID_COLUMN,
+        names.PROCCESED_COLUMN,
+        names.TRANSFER_TABLE,
+        names.PUBLICATION,
+        names.SUBSCRIPTION,
+        after_except=after_exception,
+    )
+
+
+def prepare_all_tables(src_conn, dst_conn, connector, transfer_table_schema):
+    preparations.prepare_all_tables(
+        src_conn,
+        dst_conn,
+        connector.get_src_conn_string(),
+        names.SRC_TABLE,
+        names.TRANSFER_TABLE,
+        names.PROCCESED_COLUMN,
+        names.ID_COLUMN,
+        names.PUBLICATION,
+        names.SUBSCRIPTION,
+        transfer_table_schema,
+    )
+
+
 def process():
     logger.info("Start of work")
 
-    connector = utils.db_connector.DatabaseConnector()
     settings = get_processing_settings()
 
+    connector = utils.db_connector.DatabaseConnector()
     src_conn = connector.get_src_connection()
     dst_conn = connector.get_dst_connection()
 
-    try:
-        stop_event = multiprocessing.Event()
+    stop_event = multiprocessing.Event()
 
+    try:
         logger.info("Starting preparations")
 
         transform = get_transformer(src_conn)
-
         transfer_table_schema = transform.get_transfer_table_schema()
 
-        preparations.prepare_all_tables(
+        prepare_all_tables(
             src_conn,
             dst_conn,
-            connector.get_src_conn_string(),
-            names.SRC_TABLE,
-            names.TRANSFER_TABLE,
-            names.PROCCESED_COLUMN,
-            names.ID_COLUMN,
-            names.PUBLICATION,
-            names.SUBSCRIPTION,
+            connector,
             transfer_table_schema,
         )
         logger.info("Preparations completed successfully")
@@ -119,34 +142,15 @@ def process():
         proc_to_remove.join()
 
         logger.info("Starting final cleanup")
-        cleanup_helpers.cleanup_script_helpers(
-            src_conn,
-            dst_conn,
-            names.SRC_TABLE,
-            names.ID_COLUMN,
-            names.PROCCESED_COLUMN,
-            names.TRANSFER_TABLE,
-            names.PUBLICATION,
-            names.SUBSCRIPTION,
-        )
+        cleanup(src_conn, dst_conn)
         logger.info("Final cleanup completed successfully")
 
-    except Exception as err:
+    except (KeyboardInterrupt, Exception) as err:
         logger.error(f"Error during execution: {err}")
         stop_event.set()
 
         logger.info("Starting cleanup after error")
-        cleanup_helpers.cleanup_script_helpers(
-            src_conn,
-            dst_conn,
-            names.SRC_TABLE,
-            names.ID_COLUMN,
-            names.PROCCESED_COLUMN,
-            names.TRANSFER_TABLE,
-            names.PUBLICATION,
-            names.SUBSCRIPTION,
-            after_except=True,
-        )
+        cleanup(src_conn, dst_conn, after_exception=True)
         logger.info("Cleanup after error completed successfully")
 
 
@@ -157,8 +161,9 @@ def main():
 
     load_settings(args.settings)
     # load_settings('AnonymizePG/example/shuffle_settings.json')
-    setup_logger_settings()
 
+    monitoring.metrics.LazyMetricsCollector()
+    setup_logger_settings()
     process()
 
 

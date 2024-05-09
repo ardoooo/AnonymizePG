@@ -16,12 +16,13 @@ class Shuffler(Transformer):
         src_table: str,
         transfer_table: str,
         processed_column: str,
+        continuous_mode: bool,
         batch_size: int,
         sleep_ms: int,
         groups: typing.List[typing.List[str]],
     ):
         super().__init__(
-            conn, src_table, transfer_table, processed_column, batch_size, sleep_ms
+            conn, src_table, transfer_table, processed_column, continuous_mode, batch_size, sleep_ms
         )
         self.groups = groups
 

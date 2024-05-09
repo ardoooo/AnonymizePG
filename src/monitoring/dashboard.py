@@ -8,9 +8,7 @@ import pandas as pd
 from src.monitoring import metrics
 
 
-metrics = metrics.MetricsCollector(
-    db_path="/home/ardooo/learning/diplom/metrics/metrics.db"
-)
+metrics = None
 
 
 def interpolate_and_difference(ts1, ts2):
@@ -155,6 +153,7 @@ def update_graph(n_clicks, n_intervals):
     ts2 = metrics.get_metric_by_name("total_deleted")
 
     difference = interpolate_and_difference(ts1, ts2)
+    difference = difference.where(difference >= 0, 0)
 
     fig = go.Figure()
     fig.add_trace(
@@ -162,7 +161,7 @@ def update_graph(n_clicks, n_intervals):
             x=difference.index,
             y=difference,
             mode="lines",
-            name="Количество строк в трансферной таблице",
+            name="Количество записей в трансферной таблице",
         )
     )
 
@@ -194,7 +193,7 @@ def update_batch_time_graph(n_clicks, n_intervals):
     fig.update_layout(
         title="Время обработки одного батча",
         title_font_size=22,
-        yaxis_title="Время",
+        yaxis_title="Время, с",
         yaxis_title_font_size=18,
         template="plotly_dark",
         title_font_color="#FFA07A",
@@ -244,4 +243,7 @@ def update_graphs(hosts):
 
 
 if __name__ == "__main__":
+    metrics = metrics.MetricsCollector(
+        db_path="/home/ardooo/learning/diplom/metrics/metrics.db"
+    )
     app.run_server()
