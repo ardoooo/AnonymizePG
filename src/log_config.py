@@ -1,4 +1,7 @@
 import logging.config
+from pathlib import Path
+
+from src.settings import get_settings
 
 
 def setup_logging(
@@ -66,3 +69,17 @@ def setup_logging(
     }
 
     logging.config.dictConfig(LOGGING_CONFIG)
+
+
+def setup_logger_settings():
+    settings = get_settings()
+
+    if "logs_dir" not in settings:
+        setup_logging(None, None, True)
+        return
+
+    logs_dir = settings["logs_dir"]
+    dir_path = Path(logs_dir)
+    dir_path.mkdir(parents=True, exist_ok=True)
+
+    setup_logging(logs_dir + "/logs.log", logs_dir + "/error_logs.log")

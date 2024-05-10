@@ -90,4 +90,4 @@ class Aggregator(Transformer):
             cur.execute(drop_types_query)
             cur.execute(drop_funcs_query)
 
-    logger.debug("Aggregator cleanup successfully completed")
+        logger.debug("Aggregator cleanup successfully completed")

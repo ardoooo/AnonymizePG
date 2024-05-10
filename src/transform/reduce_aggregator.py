@@ -22,7 +22,13 @@ class ReduceAggregator(Transformer):
         column_operations: typing.Dict[str, str],
     ):
         super().__init__(
-            conn, src_table, transfer_table, processed_column, continuous_mode, batch_size, sleep_ms
+            conn,
+            src_table,
+            transfer_table,
+            processed_column,
+            continuous_mode,
+            batch_size,
+            sleep_ms,
         )
         self.column_operations = column_operations
 
@@ -95,4 +101,4 @@ class ReduceAggregator(Transformer):
             cur.execute(drop_types_query)
             cur.execute(drop_funcs_query)
 
-    logger.debug("ReduceAggregator cleanup successfully completed")
+        logger.debug("ReduceAggregator cleanup successfully completed")

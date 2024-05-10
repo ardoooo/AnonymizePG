@@ -8,6 +8,7 @@ from src.utils import utils
 
 
 logger = logging.getLogger(__name__)
+metrics = get_metrics_collector()
 
 
 class Transformer(ABC):
@@ -157,9 +158,11 @@ class Transformer(ABC):
                 start_time = time.time()
 
                 selected = self.select_ctids()
-                get_metrics_collector().increment_metric("total_selected_ctids", selected)
+                metrics.increment_metric("total_selected_ctids", selected)
 
-                if (selected == 0) or (selected < self.batch_size and self.skip_process_last_batch()):
+                if (selected == 0) or (
+                    selected < self.batch_size and self.skip_process_last_batch()
+                ):
                     if self.continuous_mode:
                         if self.sleep_ms > 0:
                             logger.debug(f"Sleep {self.sleep_ms} ms")
@@ -170,11 +173,11 @@ class Transformer(ABC):
                         break
 
                 converted = self.insert_into_transfer_table()
-                get_metrics_collector().increment_metric("total_converted", converted)
+                metrics.increment_metric("total_converted", converted)
 
                 processed = self.mark_processed()
                 self.conn.commit()
-                get_metrics_collector().increment_metric("total_mark_processed", processed)
+                metrics.increment_metric("total_mark_processed", processed)
 
                 self.truncate_stids_table()
                 self.conn.commit()
@@ -182,7 +185,7 @@ class Transformer(ABC):
 
                 end_time = time.time()
                 elapsed_time = end_time - start_time
-                get_metrics_collector().add_metric("batch_time_execution_s", elapsed_time)
+                metrics.add_metric("batch_time_execution_s", elapsed_time)
 
                 if self.sleep_ms > 0:
                     logger.debug(f"Sleep {self.sleep_ms} ms")

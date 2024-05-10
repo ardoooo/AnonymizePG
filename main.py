@@ -1,36 +1,28 @@
 import argparse
 import logging
 import multiprocessing
-from pathlib import Path
-
 import psycopg2
 
-from src import monitoring, names, transform
+import src.log_config
+from src.settings import load_settings, get_processing_settings
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("settings", type=str, help="Path to the configuration file.")
+    args = parser.parse_args()
+
+    load_settings(args.settings)
+    src.log_config.setup_logger_settings()
+
+
+from src import names, transform
 from src import utils
 from src.preparations import cleanup_helpers, preparations
 from src.replication_cleanup import replication_cleanup
-from src.settings import load_settings, get_settings, get_processing_settings
 
 
-logger = None
-
-
-def setup_logger_settings():
-    global logger
-
-    settings = get_settings()
-    if "logs_dir" in settings:
-        logs_dir = settings["logs_dir"]
-        dir_path = Path(logs_dir)
-        dir_path.mkdir(parents=True, exist_ok=True)
-
-        monitoring.log_config.setup_logging(
-            logs_dir + "/logs.log", logs_dir + "/error_logs.log"
-        )
-    else:
-        monitoring.log_config.setup_logging(None, None, True)
-
-    logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def get_transformer(conn: psycopg2.extensions.connection):
@@ -145,7 +137,15 @@ def process():
         cleanup(src_conn, dst_conn)
         logger.info("Final cleanup completed successfully")
 
-    except (KeyboardInterrupt, Exception) as err:
+    except KeyboardInterrupt as err:
+        logger.info("Get KeyboardInterrupt")
+        stop_event.set()
+
+        logger.info("Starting cleanup after KeyboardInterrupt")
+        cleanup(src_conn, dst_conn, after_exception=True)
+        logger.info("Cleanup after KeyboardInterrupt completed successfully")
+
+    except Exception as err:
         logger.error(f"Error during execution: {err}")
         stop_event.set()
 
@@ -154,18 +154,5 @@ def process():
         logger.info("Cleanup after error completed successfully")
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("settings", type=str, help="Path to the configuration file.")
-    args = parser.parse_args()
-
-    load_settings(args.settings)
-    # load_settings('AnonymizePG/example/shuffle_settings.json')
-
-    monitoring.metrics.LazyMetricsCollector()
-    setup_logger_settings()
-    process()
-
-
 if __name__ == "__main__":
-    main()
+    process()

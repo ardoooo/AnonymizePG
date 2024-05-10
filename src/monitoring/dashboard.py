@@ -5,10 +5,11 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objects as go
 import pandas as pd
 
-from src.monitoring import metrics
+from src.monitoring.metrics import get_metrics_collector
 
 
-metrics = None
+def get_metrics():
+    return get_metrics_collector("/home/ardooo/learning/diplom/metrics/metrics.db")
 
 
 def interpolate_and_difference(ts1, ts2):
@@ -149,8 +150,8 @@ def update_interval(input_value):
     [Input("interval-component", "n_intervals")],
 )
 def update_graph(n_clicks, n_intervals):
-    ts1 = metrics.get_metric_by_name("total_mark_processed")
-    ts2 = metrics.get_metric_by_name("total_deleted")
+    ts1 = get_metrics().get_metric_by_name("total_mark_processed")
+    ts2 = get_metrics().get_metric_by_name("total_deleted")
 
     difference = interpolate_and_difference(ts1, ts2)
     difference = difference.where(difference >= 0, 0)
@@ -184,7 +185,7 @@ def update_graph(n_clicks, n_intervals):
     [Input("interval-component", "n_intervals")],
 )
 def update_batch_time_graph(n_clicks, n_intervals):
-    timestamps, values = metrics.get_metric_by_name("batch_time_execution_s")
+    timestamps, values = get_metrics().get_metric_by_name("batch_time_execution_s")
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(x=timestamps, y=values, mode="lines", name="batch_time_execution_s")
@@ -209,7 +210,7 @@ def update_batch_time_graph(n_clicks, n_intervals):
     [Input("interval-component", "n_intervals")],
 )
 def update_hosts(n_clicks, n_intervals):
-    hosts = metrics.get_hosts()
+    hosts = get_metrics().get_hosts()
     return hosts
 
 
@@ -220,7 +221,7 @@ def update_hosts(n_clicks, n_intervals):
 def update_graphs(hosts):
     rows = []
     for host in hosts:
-        timestamps, values = metrics.get_metric_by_tag_and_name(host, "total_cnt")
+        timestamps, values = get_metrics().get_metric_by_tag_and_name(host, "total_cnt")
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=timestamps, y=values, mode="lines"))
         fig.update_layout(
@@ -243,7 +244,4 @@ def update_graphs(hosts):
 
 
 if __name__ == "__main__":
-    metrics = metrics.MetricsCollector(
-        db_path="/home/ardooo/learning/diplom/metrics/metrics.db"
-    )
     app.run_server()

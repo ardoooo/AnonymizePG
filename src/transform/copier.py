@@ -22,7 +22,13 @@ class Copier(Transformer):
         columns: typing.List[str],
     ):
         super().__init__(
-            conn, src_table, transfer_table, processed_column, continuous_mode, batch_size, sleep_ms
+            conn,
+            src_table,
+            transfer_table,
+            processed_column,
+            continuous_mode,
+            batch_size,
+            sleep_ms,
         )
 
         self.columns = columns
@@ -76,4 +82,4 @@ class Copier(Transformer):
             cur.execute(drop_types_query)
             cur.execute(drop_funcs_query)
 
-    logger.debug("Copier cleanup successfully completed")
+        logger.debug("Copier cleanup successfully completed")

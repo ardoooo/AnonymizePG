@@ -6,13 +6,16 @@ from src.settings import get_settings
 
 
 class MetricsCollectorStub:
-    def _initialize_db():
-        pass
-
     def add_metric(self, name, value):
         pass
 
     def increment_metric(self, name, increment_value):
+        pass
+
+    def add_metrics_array(self, name, values, tags):
+        pass
+
+    def increment_metrics_array(self, name, increment_values, tags):
         pass
 
     def get_metric_by_name(self, name):
@@ -23,24 +26,10 @@ class MetricsCollector:
     __init_db = False
     __lock = Lock()
 
-    def __init__(self, db_path=None, disable_metrics=True):
-        settings = get_settings()
-        if db_path is not None or "metrics_dir" in settings:
-            disable_metrics = False
-
-        if db_path is None and "metrics_dir" in settings:
-            metrics_dir = settings["metrics_dir"]
-            metrics_path = pathlib.Path(metrics_dir)
-            metrics_path.mkdir(parents=True, exist_ok=True)
-
-            db_path = metrics_dir + "/metrics.db"
-
-        if disable_metrics:
-            self.__class__ = MetricsCollectorStub
-            return
-
+    def __init__(self, db_path=None):
         self.db_path = db_path
         self.conn = sqlite3.connect(db_path)
+        self.conn.execute('PRAGMA journal_mode=WAL')
         self.last_values = {}
 
         with MetricsCollector.__lock:
@@ -49,8 +38,7 @@ class MetricsCollector:
                 MetricsCollector.__init_db = True
 
     def __del__(self):
-        if hasattr(self, 'conn'):
-            self.conn.close()
+        self.conn.close()
 
     def _initialize_db(self):
         cur = self.conn.cursor()
@@ -75,7 +63,10 @@ class MetricsCollector:
 
     def add_metric(self, name, value, tag=None):
         cur = self.conn.cursor()
-        cur.execute("INSERT INTO metrics (name, value, tag) VALUES (?, ?, ?)", (name, value, tag))
+        cur.execute(
+            "INSERT INTO metrics (name, value, tag) VALUES (?, ?, ?)",
+            (name, value, tag),
+        )
         self.conn.commit()
         cur.close()
 
@@ -83,19 +74,18 @@ class MetricsCollector:
         for value, tag in zip(values, tags):
             self.add_metric(name, value, tag)
 
-    def increment_metric(self, name, increment_value):
-        new_value = self.last_values.get(name, 0) + increment_value
-        self.last_values[name] = new_value
-        self.add_metric(name, new_value)
+    def increment_metric(self, name, inc_value, tag=None):
+        full_name = name
+        if tag is not None:
+            full_name = full_name + "_" + tag
+
+        new_value = self.last_values.get(full_name, 0) + inc_value
+        self.last_values[full_name] = new_value
+        self.add_metric(name, new_value, tag)
 
     def increment_metrics_array(self, name, increment_values, tags):
-        if name not in self.last_values:
-            self.last_values[name] = {}
-
         for inc_val, tag in zip(increment_values, tags):
-            new_value = self.last_values.get(name).get(tag, 0) + inc_val
-            self.last_values[name][tag] = new_value
-            self.add_metric(name, new_value, tag)
+            self.increment_metric(name, inc_val, tag)
 
     def get_metric_by_name(self, name):
         cur = self.conn.cursor()
@@ -136,23 +126,56 @@ class MetricsCollector:
 
     def get_hosts(self):
         tags = self.get_all_tags()
-        hosts = [tag for tag in tags if tag[:5] == 'host=']
+        hosts = [tag for tag in tags if tag[:5] == "host="]
         return hosts
 
 
-class LazyMetricsCollector:
-    __instance = None
+class MetricsCollectorFactory:
+    db_path = None
+    disable_metrics = True
 
     def __init__(self, db_path=None):
-        if LazyMetricsCollector.__instance is None and db_path is not None:
-            LazyMetricsCollector.__instance = MetricsCollector(db_path)
+        settings = get_settings()
+
+        if db_path is not None or "metrics_dir" in settings:
+            MetricsCollectorFactory.disable_metrics = False
+
+        if db_path is None and "metrics_dir" in settings:
+            metrics_dir = settings["metrics_dir"]
+            metrics_path = pathlib.Path(metrics_dir)
+            metrics_path.mkdir(parents=True, exist_ok=True)
+
+            db_path = metrics_dir + "/metrics.db"
+
+        MetricsCollectorFactory.db_path = db_path
 
     @classmethod
-    def get_instance(cls):
-        if cls.__instance is None:
-            raise ValueError("MetricsCollector is not initialized yet")
-        return cls.__instance
+    def initialize(cls):
+        settings = get_settings()
+
+        if "metrics_dir" in settings:
+            metrics_dir = settings["metrics_dir"]
+            metrics_path = pathlib.Path(metrics_dir)
+            metrics_path.mkdir(parents=True, exist_ok=True)
+
+            db_path = metrics_dir + "/metrics.db"
+
+            cls.db_path = db_path
+            cls.disable_metrics = False
+
+    @classmethod
+    def get_instance(cls, db_path=None):
+        if db_path is not None:
+            return MetricsCollector(db_path)
+
+        if cls.disable_metrics:
+            return MetricsCollectorStub()
+        else:
+            return MetricsCollector(cls.db_path)
 
 
-def get_metrics_collector():
-    return LazyMetricsCollector.get_instance()
+MetricsCollectorFactory.initialize()
+
+
+def get_metrics_collector(db_path=None):
+    return MetricsCollectorFactory.get_instance(db_path)

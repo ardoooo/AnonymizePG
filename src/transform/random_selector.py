@@ -22,7 +22,13 @@ class RandomSelector(Transformer):
         groups: typing.List[typing.List[str]],
     ):
         super().__init__(
-            conn, src_table, transfer_table, processed_column, continuous_mode, batch_size, sleep_ms
+            conn,
+            src_table,
+            transfer_table,
+            processed_column,
+            continuous_mode,
+            batch_size,
+            sleep_ms,
         )
         self.groups = groups
 
@@ -98,4 +104,4 @@ class RandomSelector(Transformer):
             cur.execute(drop_types_query)
             cur.execute(drop_funcs_query)
 
-    logger.debug("RandomSelector cleanup successfully completed")
+        logger.debug("RandomSelector cleanup successfully completed")

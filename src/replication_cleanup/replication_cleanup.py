@@ -7,6 +7,7 @@ from src.utils import db_connector
 
 
 logger = logging.getLogger(__name__)
+metrics = get_metrics_collector()
 
 
 def remove_replicated_records(
@@ -26,7 +27,7 @@ def remove_replicated_records(
             rpl_cnts = dst_cur.fetchone()
 
             metrics_array = [cnt[0] if cnt[0] is not None else 0 for cnt in rpl_cnts]
-            get_metrics_collector().add_metrics_array('total_cnt', metrics_array, dst_conn.get_hosts())
+            metrics.add_metrics_array("total_cnt", metrics_array, dst_conn.get_hosts())
 
             max_id = None
             if all([cnt[0] is not None for cnt in rpl_cnts]):
@@ -40,7 +41,7 @@ def remove_replicated_records(
                 logger.debug(
                     f"Records in {transfer_table} with {id_column} <= {max_id} deleted. Count: {deleted_count}"
                 )
-                get_metrics_collector().increment_metric("total_deleted", deleted_count)
+                metrics.increment_metric("total_deleted", deleted_count)
 
                 if deleted_count == 0 and stop_event.is_set():
                     break
@@ -52,6 +53,9 @@ def remove_replicated_records(
         except psycopg2.Error as err:
             logger.error(f"Error deleting records: {err}")
             raise
+        except KeyboardInterrupt as err:
+            logger.info(f"Exit after KeyboardInterrupt")
+            break
 
         finally:
             dst_cur.close()

@@ -22,7 +22,13 @@ class Shuffler(Transformer):
         groups: typing.List[typing.List[str]],
     ):
         super().__init__(
-            conn, src_table, transfer_table, processed_column, continuous_mode, batch_size, sleep_ms
+            conn,
+            src_table,
+            transfer_table,
+            processed_column,
+            continuous_mode,
+            batch_size,
+            sleep_ms,
         )
         self.groups = groups
 
@@ -83,4 +89,4 @@ class Shuffler(Transformer):
             cur.execute(drop_types_query)
             cur.execute(drop_funcs_query)
 
-    logger.debug("Shuffler cleanup successfully completed")
+        logger.debug("Shuffler cleanup successfully completed")
