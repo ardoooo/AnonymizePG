@@ -67,7 +67,7 @@ def _close_connection_impl(conn):
 def _extract_host(dsn):
     match = re.search(r"host=([^ ]+)", dsn)
     if match:
-        return 'host=' + match.group(1)
+        return "host=" + match.group(1)
     return None
 
 
@@ -111,15 +111,17 @@ def _close_connection(
 
 
 class DatabaseConnector:
-    def __init__(self):
+    def __init__(self, only_src: bool = False):
         load_dotenv(find_dotenv(usecwd=True))
 
         self.conn_strings = {
             ConnStringType.SOURCE: os.getenv("SRC_CONN_STRING"),
-            ConnStringType.DESTINATION: json.loads(
-                os.getenv("DST_CONN_STRINGS").replace("\n", "")
-            ),
         }
+        if not only_src:
+            self.conn_strings[ConnStringType.DESTINATION] = json.loads(
+                os.getenv("DST_CONN_STRINGS").replace("\n", "")
+            )
+
         self.connections: typing.List[
             typing.Union[psycopg2.extensions.connection, MultiClusterConnection]
         ] = []

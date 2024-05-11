@@ -25,7 +25,7 @@ from src.replication_cleanup import replication_cleanup
 logger = logging.getLogger(__name__)
 
 
-def get_transformer(conn: psycopg2.extensions.connection):
+def build_transformer(conn: psycopg2.extensions.connection):
     settings = get_processing_settings()
 
     common_settings = {
@@ -60,97 +60,71 @@ def get_transformer(conn: psycopg2.extensions.connection):
         return transform.uuid_replacer.UuidReplacer(**common_settings)
 
 
-def cleanup(src_conn, dst_conn, after_exception=False):
-    cleanup_helpers.cleanup_script_helpers(
+def cleanup(src_conn, after_except=False):
+    cleanup_helpers.src_cleanup_script_helpers(
         src_conn,
-        dst_conn,
         names.SRC_TABLE,
-        names.ID_COLUMN,
         names.PROCCESED_COLUMN,
         names.TRANSFER_TABLE,
-        names.PUBLICATION,
-        names.SUBSCRIPTION,
-        after_except=after_exception,
+        names.ID_COLUMN,
+        None,
+        False,
+        after_except,
     )
 
 
-def prepare_all_tables(src_conn, dst_conn, connector, transfer_table_schema):
+def prepare_all_tables(src_conn, transfer_table_schema):
     preparations.prepare_all_tables(
         src_conn,
-        dst_conn,
-        connector.get_src_conn_string(),
+        None,
+        None,
         names.SRC_TABLE,
         names.TRANSFER_TABLE,
         names.PROCCESED_COLUMN,
         names.ID_COLUMN,
-        names.PUBLICATION,
-        names.SUBSCRIPTION,
+        None,
+        None,
         transfer_table_schema,
+        False,
     )
 
 
 def process():
     logger.info("Start of work")
 
-    settings = get_processing_settings()
-
-    connector = utils.db_connector.DatabaseConnector()
+    connector = utils.db_connector.DatabaseConnector(only_src=True)
     src_conn = connector.get_src_connection()
-    dst_conn = connector.get_dst_connection()
-
-    stop_event = multiprocessing.Event()
 
     try:
         logger.info("Starting preparations")
 
-        transform = get_transformer(src_conn)
+        transform = build_transformer(src_conn)
         transfer_table_schema = transform.get_transfer_table_schema()
 
         prepare_all_tables(
             src_conn,
-            dst_conn,
-            connector,
             transfer_table_schema,
         )
         logger.info("Preparations completed successfully")
 
-        proc_to_remove = multiprocessing.Process(
-            target=replication_cleanup.remove_replicated_records,
-            args=(
-                connector.get_src_connection(),
-                connector.get_dst_connection(),
-                names.TRANSFER_TABLE,
-                names.ID_COLUMN,
-                settings["delete_sleep_s"],
-                stop_event,
-            ),
-        )
-        proc_to_remove.start()
-        logger.info("Starting remove replicated process")
-
         transform.process()
 
-        stop_event.set()
-        proc_to_remove.join()
-
         logger.info("Starting final cleanup")
-        cleanup(src_conn, dst_conn)
+        cleanup(src_conn)
         logger.info("Final cleanup completed successfully")
 
     except KeyboardInterrupt as err:
         logger.info("Get KeyboardInterrupt")
-        stop_event.set()
 
         logger.info("Starting cleanup after KeyboardInterrupt")
-        cleanup(src_conn, dst_conn, after_exception=True)
+        cleanup(src_conn, after_except=True)
         logger.info("Cleanup after KeyboardInterrupt completed successfully")
 
     except Exception as err:
         logger.error(f"Error during execution: {err}")
-        stop_event.set()
 
         logger.info("Starting cleanup after error")
-        cleanup(src_conn, dst_conn, after_exception=True)
+        cleanup(src_conn, after_except=True)
         logger.info("Cleanup after error completed successfully")
 
 

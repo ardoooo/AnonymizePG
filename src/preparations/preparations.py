@@ -1,8 +1,8 @@
-import collections
 import logging
 import psycopg2
+import typing
 
-import src.utils.utils
+from src.utils import db_connector
 
 
 logger = logging.getLogger(__name__)
@@ -36,8 +36,9 @@ def prepare_transfer_table(
     src_table: str,
     transfer_table: str,
     id_column: str,
-    publication: str,
+    publication: typing.Optional[str],
     table_schema,
+    with_replication: bool,
 ):
     logger.info(f"Starting to prepare '{transfer_table}' based on '{src_table}'.")
     cur = conn.cursor()
@@ -50,10 +51,16 @@ def prepare_transfer_table(
         )
         logger.info(f"Created table '{transfer_table}'")
 
-        cur.execute(
-            f"CREATE PUBLICATION {publication} FOR TABLE {transfer_table} WITH (publish = 'insert')"
-        )
-        logger.info(f"Created publication '{publication}' for table '{transfer_table}'")
+        if with_replication:
+            if publication is None:
+                raise Exception("Publication is None, but mode is with replication")
+
+            cur.execute(
+                f"CREATE PUBLICATION {publication} FOR TABLE {transfer_table} WITH (publish = 'insert')"
+            )
+            logger.info(
+                f"Created publication '{publication}' for table '{transfer_table}'"
+            )
 
         logger.info(f"Successfully completed preparation of '{transfer_table}'")
     except psycopg2.Error as err:
@@ -72,8 +79,7 @@ def slot_name_generator():
 
 
 def prepare_dst_table(
-    src_conn: psycopg2.extensions.connection,
-    dst_conn: psycopg2.extensions.connection,
+    dst_conn: db_connector.MultiClusterConnection,
     src_conn_string: str,
     transfer_table: str,
     id_column,
@@ -82,7 +88,6 @@ def prepare_dst_table(
     table_schema,
 ):
     logger.info(f"Starting to prepare destination table '{transfer_table}'")
-    src_cur = src_conn.cursor()
     dst_cur = dst_conn.cursor()
     try:
         columns_str = ", ".join([f"{column[0]} {column[1]}" for column in table_schema])
@@ -115,21 +120,21 @@ def prepare_dst_table(
         raise
 
     finally:
-        src_cur.close()
         dst_cur.close()
 
 
 def prepare_all_tables(
     src_conn: psycopg2.extensions.connection,
-    dst_conn: psycopg2.extensions.connection,
-    src_conn_string: str,
+    dst_conn: typing.Optional[db_connector.MultiClusterConnection],
+    src_conn_string: typing.Optional[str],
     src_table: str,
     transfer_table: str,
     proccesed_column: str,
     id_column,
-    publication: str,
-    subscription: str,
+    publication: typing.Optional[str],
+    subscription: typing.Optional[str],
     transfer_table_schema,
+    with_replication: bool,
 ):
 
     prepare_src_table(src_conn, src_table, proccesed_column)
@@ -140,14 +145,25 @@ def prepare_all_tables(
         id_column,
         publication,
         transfer_table_schema,
+        with_replication,
     )
-    prepare_dst_table(
-        src_conn,
-        dst_conn,
-        src_conn_string,
-        transfer_table,
-        id_column,
-        publication,
-        subscription,
-        transfer_table_schema,
-    )
+
+    if with_replication:
+        if dst_conn is None:
+            raise Exception("Dst_conn is None, but mode is with replication")
+        if src_conn_string is None:
+            raise Exception("Src_conn_string is None, but mode is with replication")
+        if publication is None:
+            raise Exception("Publication is None, but mode is with replication")
+        if subscription is None:
+            raise Exception("Subscription is None, but mode is with replication")
+
+        prepare_dst_table(
+            dst_conn,
+            src_conn_string,
+            transfer_table,
+            id_column,
+            publication,
+            subscription,
+            transfer_table_schema,
+        )
