@@ -80,16 +80,17 @@ def dst_cleanup_script_helpers(
     conn.autocommit = True
     cur = conn.cursor()
 
+    ifExistsClause = "IF EXISTS" if after_except else ""
     try:
         cur.execute(
-            f"DROP SUBSCRIPTION {'IF EXISTS' if after_except else ''} {subscription};"
+            f"DROP SUBSCRIPTION {ifExistsClause} {subscription};"
         )
         logger.info(f"Dropped subscription '{subscription}'")
 
-        cur.execute(f"DROP INDEX CONCURRENTLY {id_column};")
+        cur.execute(f"DROP INDEX CONCURRENTLY {ifExistsClause} {id_column};")
         logger.info(f"Dropped index for column '{id_column}'")
 
-        cur.execute(f"ALTER TABLE {transfer_table} DROP COLUMN {id_column} CASCADE;")
+        cur.execute(f"ALTER TABLE {transfer_table} DROP COLUMN {ifExistsClause} {id_column} CASCADE;")
         logger.info(f"Dropped column '{id_column}' from table '{transfer_table}'")
 
         logger.info(
