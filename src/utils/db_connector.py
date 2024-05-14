@@ -1,7 +1,6 @@
 import os
 import json
 import types
-from dotenv import load_dotenv, find_dotenv
 import psycopg2
 import logging
 import enum
@@ -112,8 +111,6 @@ def _close_connection(
 
 class DatabaseConnector:
     def __init__(self, only_src: bool = False):
-        load_dotenv(find_dotenv(usecwd=True))
-
         self.conn_strings = {
             ConnStringType.SOURCE: os.getenv("SRC_CONN_STRING"),
         }

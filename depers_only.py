@@ -1,7 +1,7 @@
 import argparse
 import logging
-import multiprocessing
 import psycopg2
+from dotenv import load_dotenv, find_dotenv
 
 import src.log_config
 from src.settings import load_settings, get_processing_settings
@@ -10,7 +10,13 @@ from src.settings import load_settings, get_processing_settings
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("settings", type=str, help="Path to the configuration file.")
+    parser.add_argument("--env", type=str, help="Path to the env file.", nargs="?")
     args = parser.parse_args()
+
+    if args.env is None:
+        load_dotenv(find_dotenv(usecwd=True))
+    else:
+        load_dotenv(args.env)
 
     load_settings(args.settings)
     src.log_config.setup_logger_settings()
@@ -19,7 +25,6 @@ if __name__ == "__main__":
 from src import names, transform
 from src import utils
 from src.preparations import cleanup_helpers, preparations
-from src.replication_cleanup import replication_cleanup
 
 
 logger = logging.getLogger(__name__)

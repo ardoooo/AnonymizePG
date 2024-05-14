@@ -1,0 +1,182 @@
+2024-05-14 14:57:32.710 - [INFO] - __main__ : Start of work
+2024-05-14 14:57:32.717 - [INFO] - src.utils.db_connector : Connected to host=172.16.238.10
+2024-05-14 14:57:32.717 - [INFO] - __main__ : Starting preparations
+2024-05-14 14:57:32.727 - [INFO] - src.preparations.preparations : Starting to prepare source table 'workers'
+2024-05-14 14:57:32.732 - [INFO] - src.preparations.preparations : Added column '__processed__' to 'workers'
+2024-05-14 14:57:32.757 - [INFO] - src.preparations.preparations : Created index for column '__processed__' on 'workers'
+2024-05-14 14:57:32.757 - [INFO] - src.preparations.preparations : Successfully completed preparation of source table 'workers'
+2024-05-14 14:57:32.757 - [INFO] - src.preparations.preparations : Starting to prepare '_transfer_workers' based on 'workers'.
+2024-05-14 14:57:32.766 - [INFO] - src.preparations.preparations : Created table '_transfer_workers'
+2024-05-14 14:57:32.766 - [INFO] - src.preparations.preparations : Successfully completed preparation of '_transfer_workers'
+2024-05-14 14:57:32.766 - [INFO] - __main__ : Preparations completed successfully
+2024-05-14 14:57:32.766 - [INFO] - src.transform.transformer : Data transform process started
+2024-05-14 14:57:32.768 - [DEBUG] - src.transform.copier : Copier preparation successfully completed
+2024-05-14 14:57:32.769 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' created.
+2024-05-14 14:57:32.773 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:32.775 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:32.777 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:32.778 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:32.780 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:32.781 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:32.783 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:32.784 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:32.785 - [INFO] - src.transform.transformer : Data transform process successfully completed
+2024-05-14 14:57:32.787 - [DEBUG] - src.transform.copier : Copier cleanup successfully completed
+2024-05-14 14:57:32.787 - [INFO] - __main__ : Starting final cleanup
+2024-05-14 14:57:32.787 - [INFO] - src.preparations.cleanup_helpers : Starting cleanup for source-related script helpers, after exception: False
+2024-05-14 14:57:32.789 - [INFO] - src.preparations.cleanup_helpers : Dropped index for column '__processed__'
+2024-05-14 14:57:32.790 - [INFO] - src.preparations.cleanup_helpers : Dropped column '__processed__' from table 'workers'
+2024-05-14 14:57:32.792 - [INFO] - src.preparations.cleanup_helpers : Dropped column '__id__' from table '_transfer_workers'
+2024-05-14 14:57:32.792 - [INFO] - src.preparations.cleanup_helpers : Successfully completed cleanup for source-related script helpers.
+2024-05-14 14:57:32.792 - [INFO] - __main__ : Final cleanup completed successfully
+2024-05-14 14:57:32.792 - [INFO] - src.utils.db_connector : Database connection closed (user=user password=xxx dbname=db1 host=172.16.238.10 port=5432 target_session_attrs=read-write)
+2024-05-14 14:57:33.842 - [INFO] - __main__ : Start of work
+2024-05-14 14:57:33.848 - [INFO] - src.utils.db_connector : Connected to host=172.16.238.10
+2024-05-14 14:57:33.848 - [INFO] - __main__ : Starting preparations
+2024-05-14 14:57:33.859 - [INFO] - src.preparations.preparations : Starting to prepare source table 'workers'
+2024-05-14 14:57:33.860 - [INFO] - src.preparations.preparations : Added column '__processed__' to 'workers'
+2024-05-14 14:57:33.869 - [INFO] - src.preparations.preparations : Created index for column '__processed__' on 'workers'
+2024-05-14 14:57:33.869 - [INFO] - src.preparations.preparations : Successfully completed preparation of source table 'workers'
+2024-05-14 14:57:33.869 - [INFO] - src.preparations.preparations : Starting to prepare '_transfer_workers' based on 'workers'.
+2024-05-14 14:57:33.878 - [INFO] - src.preparations.preparations : Created table '_transfer_workers'
+2024-05-14 14:57:33.878 - [INFO] - src.preparations.preparations : Successfully completed preparation of '_transfer_workers'
+2024-05-14 14:57:33.878 - [INFO] - __main__ : Preparations completed successfully
+2024-05-14 14:57:33.878 - [INFO] - src.transform.transformer : Data transform process started
+2024-05-14 14:57:33.880 - [DEBUG] - src.transform.copier : Copier preparation successfully completed
+2024-05-14 14:57:33.881 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' created.
+2024-05-14 14:57:33.895 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:33.896 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:33.908 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:33.909 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:33.923 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:33.925 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:33.943 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:33.944 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:33.949 - [INFO] - src.transform.transformer : Data transform process successfully completed
+2024-05-14 14:57:33.951 - [DEBUG] - src.transform.copier : Copier cleanup successfully completed
+2024-05-14 14:57:33.951 - [INFO] - __main__ : Starting final cleanup
+2024-05-14 14:57:33.952 - [INFO] - src.preparations.cleanup_helpers : Starting cleanup for source-related script helpers, after exception: False
+2024-05-14 14:57:33.954 - [INFO] - src.preparations.cleanup_helpers : Dropped index for column '__processed__'
+2024-05-14 14:57:33.955 - [INFO] - src.preparations.cleanup_helpers : Dropped column '__processed__' from table 'workers'
+2024-05-14 14:57:33.957 - [INFO] - src.preparations.cleanup_helpers : Dropped column '__id__' from table '_transfer_workers'
+2024-05-14 14:57:33.957 - [INFO] - src.preparations.cleanup_helpers : Successfully completed cleanup for source-related script helpers.
+2024-05-14 14:57:33.957 - [INFO] - __main__ : Final cleanup completed successfully
+2024-05-14 14:57:33.957 - [INFO] - src.utils.db_connector : Database connection closed (user=user password=xxx dbname=db1 host=172.16.238.10 port=5432 target_session_attrs=read-write)
+2024-05-14 14:57:45.858 - [INFO] - __main__ : Start of work
+2024-05-14 14:57:45.864 - [INFO] - src.utils.db_connector : Connected to host=172.16.238.10
+2024-05-14 14:57:45.869 - [INFO] - src.utils.db_connector : Connected to host=172.16.238.11
+2024-05-14 14:57:45.871 - [INFO] - __main__ : Starting preparations
+2024-05-14 14:57:45.881 - [INFO] - src.preparations.preparations : Starting to prepare source table 'workers'
+2024-05-14 14:57:45.883 - [INFO] - src.preparations.preparations : Added column '__processed__' to 'workers'
+2024-05-14 14:57:45.891 - [INFO] - src.preparations.preparations : Created index for column '__processed__' on 'workers'
+2024-05-14 14:57:45.891 - [INFO] - src.preparations.preparations : Successfully completed preparation of source table 'workers'
+2024-05-14 14:57:45.892 - [INFO] - src.preparations.preparations : Starting to prepare '_transfer_workers' based on 'workers'.
+2024-05-14 14:57:45.912 - [INFO] - src.preparations.preparations : Created table '_transfer_workers'
+2024-05-14 14:57:45.914 - [INFO] - src.preparations.preparations : Created publication '_transfer_workers_pub' for table '_transfer_workers'
+2024-05-14 14:57:45.914 - [INFO] - src.preparations.preparations : Successfully completed preparation of '_transfer_workers'
+2024-05-14 14:57:45.914 - [INFO] - src.preparations.preparations : Starting to prepare destination table '_transfer_workers'
+2024-05-14 14:57:45.916 - [INFO] - src.preparations.preparations : Created table '_transfer_workers' in destination database
+2024-05-14 14:57:45.922 - [INFO] - src.preparations.preparations : Created index for column '__id__' on '_transfer_workers'
+2024-05-14 14:57:45.958 - [INFO] - src.preparations.preparations : Created subscription '_transfer_workers_sub' for publication '_transfer_workers_pub'
+2024-05-14 14:57:45.958 - [INFO] - src.preparations.preparations : Successfully completed preparation of destination table '_transfer_workers'
+2024-05-14 14:57:45.958 - [INFO] - __main__ : Preparations completed successfully
+2024-05-14 14:57:45.963 - [INFO] - src.utils.db_connector : Connected to host=172.16.238.10
+2024-05-14 14:57:45.968 - [INFO] - src.utils.db_connector : Connected to host=172.16.238.11
+2024-05-14 14:57:45.971 - [INFO] - __main__ : Starting remove replicated process
+2024-05-14 14:57:45.971 - [INFO] - src.transform.transformer : Data transform process started
+2024-05-14 14:57:45.973 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:57:45.974 - [DEBUG] - src.transform.copier : Copier preparation successfully completed
+2024-05-14 14:57:45.974 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' created.
+2024-05-14 14:57:45.979 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:45.981 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:45.983 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:45.988 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:45.990 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:45.991 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:45.992 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:45.993 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:45.994 - [INFO] - src.transform.transformer : Data transform process successfully completed
+2024-05-14 14:57:45.995 - [DEBUG] - src.transform.copier : Copier cleanup successfully completed
+2024-05-14 14:57:46.975 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:57:47.977 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:57:48.979 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:57:49.981 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:57:50.983 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:57:51.988 - [DEBUG] - src.replication_cleanup.replication_cleanup : Records in _transfer_workers with __id__ <= 18 deleted. Count: 18
+2024-05-14 14:57:52.990 - [DEBUG] - src.replication_cleanup.replication_cleanup : Records in _transfer_workers with __id__ <= 18 deleted. Count: 0
+2024-05-14 14:57:52.993 - [INFO] - __main__ : Starting final cleanup
+2024-05-14 14:57:52.993 - [INFO] - src.preparations.cleanup_helpers : Starting cleanup for source-related script helpers, after exception: False
+2024-05-14 14:57:52.996 - [INFO] - src.preparations.cleanup_helpers : Dropped index for column '__processed__'
+2024-05-14 14:57:52.998 - [INFO] - src.preparations.cleanup_helpers : Dropped column '__processed__' from table 'workers'
+2024-05-14 14:57:53.003 - [INFO] - src.preparations.cleanup_helpers : Dropped publication '_transfer_workers_pub'
+2024-05-14 14:57:53.009 - [INFO] - src.preparations.cleanup_helpers : Dropped table '_transfer_workers'
+2024-05-14 14:57:53.009 - [INFO] - src.preparations.cleanup_helpers : Successfully completed cleanup for source-related script helpers.
+2024-05-14 14:57:53.009 - [INFO] - src.preparations.cleanup_helpers : Starting cleanup for destination-related script helpers, after exception: False
+2024-05-14 14:57:53.034 - [INFO] - src.preparations.cleanup_helpers : Dropped subscription '_transfer_workers_sub'
+2024-05-14 14:57:53.039 - [INFO] - src.preparations.cleanup_helpers : Dropped index for column '__id__'
+2024-05-14 14:57:53.044 - [INFO] - src.preparations.cleanup_helpers : Dropped column '__id__' from table '_transfer_workers'
+2024-05-14 14:57:53.044 - [INFO] - src.preparations.cleanup_helpers : Successfully completed cleanup for destination-related script helpers
+2024-05-14 14:57:53.044 - [INFO] - __main__ : Final cleanup completed successfully
+2024-05-14 14:57:53.044 - [INFO] - src.utils.db_connector : Database connection closed (user=user password=xxx dbname=db1 host=172.16.238.10 port=5432 target_session_attrs=read-write)
+2024-05-14 14:57:53.044 - [INFO] - src.utils.db_connector : Database connection closed (user=user password=xxx dbname=db1 host=172.16.238.11 port=5432 target_session_attrs=read-write)
+2024-05-14 14:57:53.044 - [INFO] - src.utils.db_connector : Database connection closed (user=user password=xxx dbname=db1 host=172.16.238.10 port=5432 target_session_attrs=read-write)
+2024-05-14 14:57:53.045 - [INFO] - src.utils.db_connector : Database connection closed (user=user password=xxx dbname=db1 host=172.16.238.11 port=5432 target_session_attrs=read-write)
+2024-05-14 14:57:54.215 - [INFO] - __main__ : Start of work
+2024-05-14 14:57:54.222 - [INFO] - src.utils.db_connector : Connected to host=172.16.238.10
+2024-05-14 14:57:54.227 - [INFO] - src.utils.db_connector : Connected to host=172.16.238.11
+2024-05-14 14:57:54.229 - [INFO] - __main__ : Starting preparations
+2024-05-14 14:57:54.239 - [INFO] - src.preparations.preparations : Starting to prepare source table 'workers'
+2024-05-14 14:57:54.241 - [INFO] - src.preparations.preparations : Added column '__processed__' to 'workers'
+2024-05-14 14:57:54.258 - [INFO] - src.preparations.preparations : Created index for column '__processed__' on 'workers'
+2024-05-14 14:57:54.258 - [INFO] - src.preparations.preparations : Successfully completed preparation of source table 'workers'
+2024-05-14 14:57:54.258 - [INFO] - src.preparations.preparations : Starting to prepare '_transfer_workers' based on 'workers'.
+2024-05-14 14:57:54.291 - [INFO] - src.preparations.preparations : Created table '_transfer_workers'
+2024-05-14 14:57:54.294 - [INFO] - src.preparations.preparations : Created publication '_transfer_workers_pub' for table '_transfer_workers'
+2024-05-14 14:57:54.294 - [INFO] - src.preparations.preparations : Successfully completed preparation of '_transfer_workers'
+2024-05-14 14:57:54.295 - [INFO] - src.preparations.preparations : Starting to prepare destination table '_transfer_workers'
+2024-05-14 14:57:54.298 - [INFO] - src.preparations.preparations : Created table '_transfer_workers' in destination database
+2024-05-14 14:57:54.311 - [INFO] - src.preparations.preparations : Created index for column '__id__' on '_transfer_workers'
+2024-05-14 14:57:54.366 - [INFO] - src.preparations.preparations : Created subscription '_transfer_workers_sub' for publication '_transfer_workers_pub'
+2024-05-14 14:57:54.366 - [INFO] - src.preparations.preparations : Successfully completed preparation of destination table '_transfer_workers'
+2024-05-14 14:57:54.366 - [INFO] - __main__ : Preparations completed successfully
+2024-05-14 14:57:54.371 - [INFO] - src.utils.db_connector : Connected to host=172.16.238.10
+2024-05-14 14:57:54.376 - [INFO] - src.utils.db_connector : Connected to host=172.16.238.11
+2024-05-14 14:57:54.379 - [INFO] - __main__ : Starting remove replicated process
+2024-05-14 14:57:54.379 - [INFO] - src.transform.transformer : Data transform process started
+2024-05-14 14:57:54.381 - [DEBUG] - src.transform.copier : Copier preparation successfully completed
+2024-05-14 14:57:54.382 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' created.
+2024-05-14 14:57:54.393 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:57:54.416 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:54.418 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:54.437 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:54.439 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:54.462 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:54.463 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:54.486 - [DEBUG] - src.transform.transformer : Temporary table 'temp_ctid_holder' truncated
+2024-05-14 14:57:54.487 - [DEBUG] - src.transform.transformer : Completed iteration
+2024-05-14 14:57:54.493 - [INFO] - src.transform.transformer : Data transform process successfully completed
+2024-05-14 14:57:54.495 - [DEBUG] - src.transform.copier : Copier cleanup successfully completed
+2024-05-14 14:57:55.398 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:57:56.405 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:57:57.413 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:57:58.418 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:57:59.435 - [DEBUG] - src.replication_cleanup.replication_cleanup : No data to delete in the table _transfer_workers.
+2024-05-14 14:58:00.469 - [DEBUG] - src.replication_cleanup.replication_cleanup : Records in _transfer_workers with __id__ <= 18 deleted. Count: 18
+2024-05-14 14:58:01.611 - [DEBUG] - src.replication_cleanup.replication_cleanup : Records in _transfer_workers with __id__ <= 18 deleted. Count: 0
+2024-05-14 14:58:01.710 - [INFO] - __main__ : Starting final cleanup
+2024-05-14 14:58:01.710 - [INFO] - src.preparations.cleanup_helpers : Starting cleanup for source-related script helpers, after exception: False
+2024-05-14 14:58:01.764 - [INFO] - src.preparations.cleanup_helpers : Dropped index for column '__processed__'
+2024-05-14 14:58:01.772 - [INFO] - src.preparations.cleanup_helpers : Dropped column '__processed__' from table 'workers'
+2024-05-14 14:58:01.784 - [INFO] - src.preparations.cleanup_helpers : Dropped publication '_transfer_workers_pub'
+2024-05-14 14:58:01.794 - [INFO] - src.preparations.cleanup_helpers : Dropped table '_transfer_workers'
+2024-05-14 14:58:01.794 - [INFO] - src.preparations.cleanup_helpers : Successfully completed cleanup for source-related script helpers.
+2024-05-14 14:58:01.794 - [INFO] - src.preparations.cleanup_helpers : Starting cleanup for destination-related script helpers, after exception: False
+2024-05-14 14:58:01.829 - [INFO] - src.preparations.cleanup_helpers : Dropped subscription '_transfer_workers_sub'
+2024-05-14 14:58:01.845 - [INFO] - src.preparations.cleanup_helpers : Dropped index for column '__id__'
+2024-05-14 14:58:01.854 - [INFO] - src.preparations.cleanup_helpers : Dropped column '__id__' from table '_transfer_workers'
+2024-05-14 14:58:01.854 - [INFO] - src.preparations.cleanup_helpers : Successfully completed cleanup for destination-related script helpers
+2024-05-14 14:58:01.854 - [INFO] - __main__ : Final cleanup completed successfully
+2024-05-14 14:58:01.854 - [INFO] - src.utils.db_connector : Database connection closed (user=user password=xxx dbname=db1 host=172.16.238.10 port=5432 target_session_attrs=read-write)
+2024-05-14 14:58:01.854 - [INFO] - src.utils.db_connector : Database connection closed (user=user password=xxx dbname=db1 host=172.16.238.11 port=5432 target_session_attrs=read-write)
+2024-05-14 14:58:01.854 - [INFO] - src.utils.db_connector : Database connection closed (user=user password=xxx dbname=db1 host=172.16.238.10 port=5432 target_session_attrs=read-write)
+2024-05-14 14:58:01.854 - [INFO] - src.utils.db_connector : Database connection closed (user=user password=xxx dbname=db1 host=172.16.238.11 port=5432 target_session_attrs=read-write)

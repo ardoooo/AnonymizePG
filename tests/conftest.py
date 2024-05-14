@@ -4,6 +4,7 @@ import psycopg2
 import subprocess
 import time
 import os
+import signal
 
 
 def _find_file(start_dir, file_name, levels_up=2):
@@ -29,18 +30,64 @@ def find_file(request):
 
 
 @pytest.fixture
+def create_tmp(request):
+    test_dir = os.path.dirname(str(request.fspath))
+    tmp_dir = os.path.join(test_dir, "tmp")
+    os.makedirs(tmp_dir)
+    try:
+        yield tmp_dir
+    finally:
+        os.rmdir(tmp_dir)
+
+
+@pytest.fixture
 def run_script(request):
     test_dir = os.path.dirname(request.fspath)
 
-    def _run(script_name, config_name):
+    def _run(script_name, config_name, env_file=None):
+        script_path = _find_file(test_dir, script_name, 3)
+        config_path = _find_file(test_dir, config_name)
+        if env_file is None:
+            subprocess.run(
+                ["python3", script_path, config_path], check=True, cwd=test_dir
+            )
+            return
+
+        env_path = _find_file(test_dir, env_file)
+        subprocess.run(
+            ["python3", script_path, config_path, "--env", env_path],
+            check=True,
+            cwd=test_dir,
+        )
+
+    return _run
+
+
+@pytest.fixture
+def run_script_with_interrupt(request):
+    test_dir = os.path.dirname(request.fspath)
+
+    def _run(script_name, config_name, time_ms, env_file=None):
         script_path = _find_file(test_dir, script_name, 3)
         config_path = _find_file(test_dir, config_name)
 
-        subprocess.run(
-            ["python3", script_path, config_path],
-            check=True,
-            cwd=test_dir
-        )
+        if env_file is None:
+            process = subprocess.Popen(
+                ["python3", script_path, config_path], cwd=test_dir
+            )
+        else:
+            env_path = _find_file(test_dir, env_file)
+            process = subprocess.Popen(
+                ["python3", script_path, config_path, "--env", env_path], cwd=test_dir
+            )
+
+        if time_ms > 0:
+            time.sleep(time_ms // 1000)
+
+        process.send_signal(signal.SIGINT)
+        process.wait()
+        if process.returncode != 0:
+            raise subprocess.CalledProcessError(process.returncode, process.args)
 
     return _run
 
